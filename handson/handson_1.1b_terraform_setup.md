@@ -1,346 +1,270 @@
-# Lab 1.2 - Terraform Setup and First Configuration
+# Hands-On 1.1b — Installing Terraform on Linux (Ubuntu)
 
-This lab walks you through setting up your environment for Terraform development. You will create an AWS IAM user, install Terraform on your operating system, configure the AWS provider, and write your very first Terraform configuration using the local provider. By the end of this lab, you will have a fully working Terraform environment ready for building AWS infrastructure.
-
----
-
-## 1. AWS Account Setup
-
-### 1.1 Create an IAM User for Terraform
-
-Never use your AWS root account for day-to-day work. Create a dedicated IAM user for Terraform.
-
-1. Log into the AWS Management Console as root or an admin user.
-
-2. Navigate to **IAM > Users > Create user**.
-
-3. Enter the following details:
-
-   - **User name:** `terraform-lab-user`
-   - **Access type:** Check "Provide user access to the AWS Management Console" (optional for labs)
-
-4. Click **Next: Permissions**.
-
-5. Select **Attach policies directly** and attach the following policy:
-
-   - `AdministratorAccess` (for lab purposes only -- use least privilege in production)
-
-6. Click **Next: Review > Create user**.
-
-> **Warning:** `AdministratorAccess` grants full access to your AWS account. For production use, create a custom policy with only the permissions Terraform needs. For training labs, this simplifies the setup.
-
-### 1.2 Create Access Keys
-
-1. Go to **IAM > Users > terraform-lab-user > Security credentials**.
-
-2. Under **Access keys**, click **Create access key**.
-
-3. Select **Command Line Interface (CLI)**.
-
-4. Check the acknowledgment box and click **Next > Create access key**.
-
-5. **Save both values immediately** -- the Secret Access Key is shown only once:
-
-   ```
-   Access Key ID:     AKIAIOSFODNN7EXAMPLE
-   Secret Access Key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-   ```
-
-> **Tip:** Store these credentials securely. Never commit them to Git. Never share them. If compromised, delete and rotate immediately.
+**Environment:** Ubuntu/Debian Linux
 
 ---
 
-## 2. Installing Terraform
+## Concept
 
-### 2.1 Install on Linux (Ubuntu/Debian)
+Terraform is a single binary — install it, add it to your PATH, and you're ready. This lab covers installation on Ubuntu Linux only, plus setting up your editor and project workspace.
+
+---
+
+## 1. Install Terraform on Ubuntu/Debian
+
+### Step 1 — Add the HashiCorp GPG key and repository
 
 ```bash
 # Add HashiCorp GPG key
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
-# Add HashiCorp repository
+# Add HashiCorp apt repository
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+```
 
-# Update and install
+### Step 2 — Install Terraform
+
+```bash
 sudo apt update && sudo apt install terraform -y
+```
 
-# Verify installation
+### Step 3 — Verify installation
+
+```bash
 terraform version
 ```
 
 **Expected output:**
+
 ```
 Terraform v1.9.x
 on linux_amd64
 ```
 
-### 2.2 Install on Linux (RHEL/CentOS/Amazon Linux)
+### Step 4 — Enable tab completion (optional but recommended)
 
 ```bash
-# Add HashiCorp repository
-sudo yum install -y yum-utils
-sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-
-# Install Terraform
-sudo yum install terraform -y
-
-# Verify installation
-terraform version
+terraform -install-autocomplete
 ```
 
-### 2.3 Install on macOS
+Then restart your shell:
 
 ```bash
-# Using Homebrew
-brew tap hashicorp/tap
-brew install hashicorp/tap/terraform
-
-# Verify installation
-terraform version
+exec bash
 ```
 
-### 2.4 Install on Windows
+Now try typing `terraform pl` and press TAB — it should complete to `terraform plan`.
 
-```powershell
-# Using Chocolatey
-choco install terraform -y
+> **Tip:** If you need a specific version, use the manual install method below.
 
-# OR using Scoop
-scoop install terraform
+---
 
-# Verify installation
-terraform version
-```
+## 2. Alternative: Manual Install (any Linux)
 
-### 2.5 Manual Install (Any Platform)
+If you can't use `apt`, download the binary directly:
 
 ```bash
-# Download the binary for your OS from:
-# https://developer.hashicorp.com/terraform/downloads
-
-# Example for Linux amd64:
+# Download (replace version as needed)
 wget https://releases.hashicorp.com/terraform/1.9.5/terraform_1.9.5_linux_amd64.zip
+
+# Unzip
 unzip terraform_1.9.5_linux_amd64.zip
+
+# Move to PATH
 sudo mv terraform /usr/local/bin/
+
+# Verify
 terraform version
+```
+
+### Managing Multiple Versions with tfenv
+
+```bash
+# Install tfenv
+git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Install a specific version
+tfenv install 1.9.5
+tfenv use 1.9.5
+
+# List installed versions
+tfenv list
+
+# Switch versions
+tfenv use 1.8.0
+```
+
+> **Tip:** `tfenv` is like `nvm` for Node.js — lets you switch Terraform versions per project.
+
+---
+
+## 3. Verify Your Shell Environment
+
+Run these checks to make sure everything is in order:
+
+```bash
+# Terraform is in PATH
+which terraform
+```
+
+```
+/usr/bin/terraform
+```
+
+```bash
+# Version is correct
+terraform version
+```
+
+```
+Terraform v1.9.5
+on linux_amd64
+```
+
+```bash
+# Git is installed (needed later for team workflows)
+git --version
+```
+
+```
+git version 2.43.0
+```
+
+```bash
+# curl/wget available (needed for downloads)
+which curl wget
 ```
 
 ---
 
-## 3. Preparing Your Work Environment
+## 4. VS Code Setup (Recommended)
 
-### 3.1 Install AWS CLI
-
-```bash
-# Linux
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-
-# macOS
-brew install awscli
-
-# Verify
-aws --version
-```
-
-**Expected output:**
-```
-aws-cli/2.15.x Python/3.11.x Linux/6.x.x-xxx
-```
-
-### 3.2 Configure AWS CLI
+### Step 1 — Install the HashiCorp Terraform extension
 
 ```bash
-aws configure
+code --install-extension hashicorp.terraform
 ```
 
-Enter the credentials from Step 1.2:
+Or in VS Code: `Ctrl+Shift+X` → search "HashiCorp Terraform" → Install
 
-```
-AWS Access Key ID [None]: AKIAIOSFODNN7EXAMPLE
-AWS Secret Access Key [None]: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-Default region name [None]: us-east-1
-Default output format [None]: json
-```
+### What the extension provides:
 
-Verify the configuration:
+| Feature | Description |
+|---------|-------------|
+| Syntax highlighting | HCL files are color-coded |
+| Auto-complete | Resource types, attributes, functions |
+| Format on save | Runs `terraform fmt` automatically |
+| Go to definition | Jump to variable/resource definitions |
+| Hover docs | See resource docs on hover |
 
-```bash
-aws sts get-caller-identity
-```
+### Step 2 — Configure VS Code settings
 
-**Expected output:**
+Add to your `.vscode/settings.json` or global settings:
+
 ```json
 {
-    "UserId": "AIDAIOSFODNN7EXAMPLE",
-    "Account": "123456789012",
-    "Arn": "arn:aws:iam::123456789012:user/terraform-lab-user"
+  "[terraform]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "hashicorp.terraform"
+  },
+  "[terraform-vars]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "hashicorp.terraform"
+  }
 }
 ```
 
-### 3.3 VS Code Extensions (Recommended)
+> This auto-formats your `.tf` files on save — consistent style across the team.
 
-Install these VS Code extensions for the best Terraform editing experience:
+---
 
-| Extension | Publisher | Purpose |
-|-----------|-----------|---------|
-| **HashiCorp Terraform** | HashiCorp | Syntax highlighting, autocomplete, formatting |
-| **Terraform Doc Snippets** | Run at Scale | Quick snippets for common resources |
-| **AWS Toolkit** | Amazon Web Services | AWS resource browser, credential helper |
+## 5. Project Directory Structure
 
-### 3.4 Directory Structure
-
-Create your lab workspace:
+### Step 1 — Create your lab workspace
 
 ```bash
-mkdir -p ~/terraform-labs/lab-1.2-setup
-cd ~/terraform-labs/lab-1.2-setup
+mkdir -p ~/terraform-labs
+cd ~/terraform-labs
 ```
 
-A typical Terraform project structure looks like:
+### Step 2 — Understand the standard file layout
+
+Every Terraform project follows this convention:
 
 ```
 project/
-  main.tf           # Primary resource definitions
-  variables.tf      # Input variable declarations
-  outputs.tf        # Output value declarations
-  providers.tf      # Provider configuration
-  terraform.tfvars  # Variable values (do not commit secrets)
-  .gitignore        # Ignore .terraform/, *.tfstate, etc.
+├── main.tf           # Primary resource definitions
+├── variables.tf      # Input variable declarations
+├── outputs.tf        # Output value declarations
+├── providers.tf      # Provider configuration + versions
+├── locals.tf         # Local computed values (optional)
+├── data.tf           # Data sources (optional)
+├── terraform.tfvars  # Variable values (⚠️ may contain secrets)
+└── .gitignore        # Ignore .terraform/, *.tfstate
 ```
 
-### 3.5 Create a .gitignore
+### Step 3 — Create a standard .gitignore
 
 ```bash
-cat > .gitignore << 'GITIGNORE'
+cat > ~/terraform-labs/.gitignore << 'EOF'
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.backup
 *.tfplan
+.terraform.lock.hcl
 
-# Credentials
+# Credentials — NEVER commit
 *.tfvars
 !example.tfvars
 
-# OS
+# OS files
 .DS_Store
-Thumbs.db
 
 # IDE
 .vscode/
 .idea/
-GITIGNORE
+EOF
 ```
+
+### What each ignored file is:
+
+| File/Dir | Why Ignore |
+|----------|-----------|
+| `.terraform/` | Downloaded provider binaries (large, regenerated by `init`) |
+| `*.tfstate` | Contains sensitive data (passwords, IPs, keys) |
+| `*.tfstate.backup` | Previous state — same sensitivity |
+| `*.tfplan` | Binary plan files |
+| `*.tfvars` | May contain secrets (DB passwords, API keys) |
+
+> **Exception:** `.terraform.lock.hcl` SHOULD be committed in real projects — it locks provider versions. For labs we ignore it for simplicity.
 
 ---
 
-## 4. Terraform Providers Overview
+## 6. Useful Terraform Commands Reference
 
-Providers are plugins that Terraform uses to interact with APIs. Each cloud service, SaaS platform, or other tool has its own provider.
+| Command | Purpose |
+|---------|---------|
+| `terraform init` | Initialize — download providers & modules |
+| `terraform plan` | Preview changes (read-only, safe to run anytime) |
+| `terraform apply` | Execute changes |
+| `terraform destroy` | Remove all managed resources |
+| `terraform fmt` | Auto-format `.tf` files |
+| `terraform validate` | Check syntax without connecting to any API |
+| `terraform version` | Show installed version |
+| `terraform providers` | List required providers |
+| `terraform console` | Interactive expression evaluator (REPL) |
 
-### 4.1 The Terraform Registry
-
-Browse providers at: **https://registry.terraform.io/browse/providers**
-
-Popular providers include:
-
-| Provider | Purpose | Maintainer |
-|----------|---------|------------|
-| `hashicorp/aws` | Amazon Web Services | HashiCorp |
-| `hashicorp/azurerm` | Microsoft Azure | HashiCorp |
-| `hashicorp/google` | Google Cloud Platform | HashiCorp |
-| `hashicorp/kubernetes` | Kubernetes clusters | HashiCorp |
-| `hashicorp/local` | Local file operations | HashiCorp |
-| `hashicorp/random` | Random value generation | HashiCorp |
-| `hashicorp/null` | Null resources / provisioners | HashiCorp |
-
-### 4.2 Provider Versioning
-
-Always pin your provider versions to avoid unexpected breaking changes:
-
-```hcl
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"    # Allows 5.x but not 6.x
-    }
-  }
-}
-```
-
-**Version constraint syntax:**
-
-| Constraint | Meaning |
-|-----------|---------|
-| `= 5.31.0` | Exactly this version |
-| `>= 5.0` | This version or newer |
-| `~> 5.0` | Any 5.x version (pessimistic) |
-| `>= 5.0, < 6.0` | Range constraint |
-
-### 4.3 Provider Block
-
-The provider block configures a specific provider:
-
-```hcl
-provider "aws" {
-  region = "us-east-1"
-}
-```
-
-You can have multiple provider configurations using aliases:
-
-```hcl
-provider "aws" {
-  region = "us-east-1"
-  alias  = "east"
-}
-
-provider "aws" {
-  region = "us-west-2"
-  alias  = "west"
-}
-
-resource "aws_instance" "east_server" {
-  provider      = aws.east
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t2.micro"
-}
-
-resource "aws_instance" "west_server" {
-  provider      = aws.west
-  ami           = "ami-0892d3c7ee96c0bf7"
-  instance_type = "t2.micro"
-}
-```
-
----
-
-## 5. Hands-On: First Terraform Configuration (Local Provider)
-
-Before touching AWS, let us verify your setup with the simplest possible Terraform configuration -- creating a local file.
-
-### Step 1: Create a working directory
+### Try them now:
 
 ```bash
-mkdir -p ~/terraform-labs/lab-1.2-local
-cd ~/terraform-labs/lab-1.2-local
-```
+mkdir -p ~/terraform-labs/test && cd ~/terraform-labs/test
 
-### Step 2: Write the configuration
-
-Create a file named `main.tf`:
-
-```hcl
-# main.tf - My first Terraform configuration
-
+# Create a minimal config
+cat > main.tf << 'EOF'
 terraform {
-  required_version = ">= 1.5.0"
-
   required_providers {
     local = {
       source  = "hashicorp/local"
@@ -348,428 +272,24 @@ terraform {
     }
   }
 }
+EOF
 
-resource "local_file" "hello" {
-  filename = "${path.module}/hello.txt"
-  content  = "Hello, Terraform! This file was created by IaC.\n"
-}
-
-output "file_path" {
-  value       = local_file.hello.filename
-  description = "The path of the created file"
-}
-```
-
-### Step 3: Initialize Terraform
-
-```bash
-terraform init
-```
-
-**Expected output:**
-```
-Initializing the backend...
-
-Initializing provider plugins...
-- Finding hashicorp/local versions matching "~> 2.0"...
-- Installing hashicorp/local v2.5.1...
-- Installed hashicorp/local v2.5.1 (signed by HashiCorp)
-
-Terraform has created a lock file .terraform.lock.hcl to record the provider
-selections it made above. Include this file in your version control repository
-so that Terraform can guarantee to make the same selections by default when
-you run "terraform init" in the future.
-
-Terraform has been successfully initialized!
-```
-
-### Step 4: Review the plan
-
-```bash
-terraform plan
-```
-
-**Expected output:**
-```
-Terraform used the selected providers to generate the following execution plan.
-
-  # local_file.hello will be created
-  + resource "local_file" "hello" {
-      + content              = "Hello, Terraform! This file was created by IaC.\n"
-      + content_base64sha256 = (known after apply)
-      + content_base64sha512 = (known after apply)
-      + content_md5          = (known after apply)
-      + content_sha1         = (known after apply)
-      + content_sha256       = (known after apply)
-      + content_sha512       = (known after apply)
-      + directory_permission = "0777"
-      + file_permission      = "0777"
-      + filename             = "./hello.txt"
-      + id                   = (known after apply)
-    }
-
-Plan: 1 to add, 0 to change, 0 to destroy.
-
-Changes to Outputs:
-  + file_path = "./hello.txt"
-```
-
-### Step 5: Apply the configuration
-
-```bash
-terraform apply
-```
-
-Type `yes` when prompted. **Expected output:**
-```
-local_file.hello: Creating...
-local_file.hello: Creation complete after 0s [id=a1b2c3d4e5f6...]
-
-Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-
-Outputs:
-
-file_path = "./hello.txt"
-```
-
-### Step 6: Verify the result
-
-```bash
-cat hello.txt
-```
-
-**Expected output:**
-```
-Hello, Terraform! This file was created by IaC.
-```
-
-### Step 7: Inspect the state
-
-```bash
-terraform state list
-terraform state show local_file.hello
-```
-
-### Step 8: Destroy the resource
-
-```bash
-terraform destroy
-```
-
-Type `yes` when prompted. The `hello.txt` file is deleted.
-
-> **Tip:** You have just completed the full Terraform lifecycle: write -> init -> plan -> apply -> destroy. This same workflow applies to every Terraform project, whether you are creating a local file or a 500-resource AWS environment.
-
----
-
-## 6. AWS Provider Configuration Methods
-
-The AWS provider supports multiple ways to supply credentials. Terraform evaluates them in this order of precedence:
-
-### Method 1: Static Credentials in Provider Block (NOT recommended)
-
-```hcl
-provider "aws" {
-  region     = "us-east-1"
-  access_key = "AKIAIOSFODNN7EXAMPLE"
-  secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-}
-```
-
-> **Warning:** NEVER hardcode credentials in your Terraform files. They will end up in version control and be exposed. This method exists only for documentation purposes.
-
-### Method 2: Environment Variables (Good for CI/CD)
-
-```bash
-export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
-export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-export AWS_DEFAULT_REGION="us-east-1"
-```
-
-Then your provider block needs only:
-
-```hcl
-provider "aws" {
-  region = "us-east-1"
-}
-```
-
-### Method 3: Shared Credentials File (Recommended for local dev)
-
-This is what `aws configure` sets up. Terraform reads from `~/.aws/credentials` automatically:
-
-```ini
-# ~/.aws/credentials
-[default]
-aws_access_key_id = AKIAIOSFODNN7EXAMPLE
-aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-```
-
-```ini
-# ~/.aws/config
-[default]
-region = us-east-1
-output = json
-```
-
-You can use named profiles:
-
-```hcl
-provider "aws" {
-  region  = "us-east-1"
-  profile = "terraform-lab"
-}
-```
-
-### Method 4: IAM Instance Profile (Best for EC2-based workflows)
-
-When running Terraform on an EC2 instance, attach an IAM Role to the instance. Terraform automatically discovers the credentials from the instance metadata service.
-
-```hcl
-provider "aws" {
-  region = "us-east-1"
-  # No credentials needed -- uses instance profile automatically
-}
-```
-
-### Method 5: AWS SSO / IAM Identity Center
-
-```bash
-aws configure sso
-# Follow the prompts to set up SSO
-
-aws sso login --profile my-sso-profile
-```
-
-```hcl
-provider "aws" {
-  region  = "us-east-1"
-  profile = "my-sso-profile"
-}
-```
-
-### Credential Precedence Order
-
-Terraform resolves AWS credentials in this order:
-
-```
-1. Static credentials in provider block
-2. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-3. Shared credentials file (~/.aws/credentials)
-4. Shared configuration file (~/.aws/config)
-5. Container credentials (ECS task role)
-6. Instance profile credentials (EC2 IAM role)
-```
-
----
-
-## 7. Hands-On: First AWS Provider Configuration
-
-### Step 1: Create a working directory
-
-```bash
-mkdir -p ~/terraform-labs/lab-1.2-aws
-cd ~/terraform-labs/lab-1.2-aws
-```
-
-### Step 2: Write the provider configuration
-
-Create `providers.tf`:
-
-```hcl
-# providers.tf
-
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-1"
-
-  default_tags {
-    tags = {
-      Environment = "lab"
-      ManagedBy   = "terraform"
-      Project     = "terraform-training"
-    }
-  }
-}
-```
-
-> **Tip:** The `default_tags` block automatically applies these tags to every AWS resource Terraform creates. This is extremely useful for cost tracking and compliance.
-
-### Step 3: Write a simple resource
-
-Create `main.tf`:
-
-```hcl
-# main.tf
-
-# Create an S3 bucket to verify AWS connectivity
-resource "aws_s3_bucket" "test" {
-  bucket = "my-terraform-lab-test-${random_id.suffix.hex}"
-
-  tags = {
-    Name = "Terraform Test Bucket"
-  }
-}
-
-resource "random_id" "suffix" {
-  byte_length = 4
-}
-
-output "bucket_name" {
-  value = aws_s3_bucket.test.bucket
-}
-```
-
-Update `providers.tf` to add the random provider:
-
-```hcl
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-1"
-
-  default_tags {
-    tags = {
-      Environment = "lab"
-      ManagedBy   = "terraform"
-      Project     = "terraform-training"
-    }
-  }
-}
-```
-
-### Step 4: Initialize and apply
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-**Expected output (after typing `yes`):**
-```
-random_id.suffix: Creating...
-random_id.suffix: Creation complete after 0s [id=abc123]
-aws_s3_bucket.test: Creating...
-aws_s3_bucket.test: Creation complete after 2s [id=my-terraform-lab-test-61626331]
-
-Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
-
-Outputs:
-
-bucket_name = "my-terraform-lab-test-61626331"
-```
-
-### Step 5: Verify in AWS
-
-```bash
-aws s3 ls | grep terraform-lab-test
-```
-
-### Step 6: Clean up
-
-```bash
-terraform destroy
-```
-
-Type `yes` to confirm. The S3 bucket is deleted.
-
----
-
-## 8. Understanding the .terraform Directory
-
-After `terraform init`, explore what was created:
-
-```bash
-tree .terraform/
-```
-
-```
-.terraform/
-  providers/
-    registry.terraform.io/
-      hashicorp/
-        aws/
-          5.31.0/
-            linux_amd64/
-              terraform-provider-aws_v5.31.0_x5
-        random/
-          3.6.0/
-            linux_amd64/
-              terraform-provider-random_v3.6.0_x5
-```
-
-The `.terraform.lock.hcl` file records the exact provider versions and checksums used:
-
-```hcl
-# This file is maintained automatically by "terraform init".
-provider "registry.terraform.io/hashicorp/aws" {
-  version     = "5.31.0"
-  constraints = "~> 5.0"
-  hashes = [
-    "h1:abc123...",
-  ]
-}
-```
-
-> **Tip:** Always commit `.terraform.lock.hcl` to version control. Never commit the `.terraform/` directory -- it contains large binary files.
-
----
-
-## 9. Useful Terraform Commands
-
-| Command | Purpose |
-|---------|---------|
-| `terraform init` | Initialize working directory |
-| `terraform plan` | Preview changes |
-| `terraform apply` | Apply changes |
-| `terraform destroy` | Destroy all resources |
-| `terraform fmt` | Format .tf files consistently |
-| `terraform validate` | Validate configuration syntax |
-| `terraform state list` | List resources in state |
-| `terraform state show <resource>` | Show details of a resource |
-| `terraform output` | Show output values |
-| `terraform providers` | Show required providers |
-| `terraform version` | Show Terraform version |
-
-Try formatting your files right now:
-
-```bash
+# Format it
 terraform fmt
-```
 
-And validate them:
-
-```bash
+# Validate it
 terraform validate
 ```
 
 **Expected output:**
+
 ```
 Success! The configuration is valid.
+```
+
+```bash
+# Clean up
+cd ~ && rm -rf ~/terraform-labs/test
 ```
 
 ---
@@ -778,12 +298,12 @@ Success! The configuration is valid.
 
 | Task | Status |
 |------|--------|
-| AWS IAM user created | Done |
-| Access keys generated and saved | Done |
-| Terraform installed and verified | Done |
-| AWS CLI configured | Done |
-| Local provider hands-on complete | Done |
-| AWS provider configured and tested | Done |
-| First AWS resource created and destroyed | Done |
+| Terraform installed on Ubuntu | ✅ |
+| Version verified | ✅ |
+| Tab completion enabled | ✅ |
+| VS Code extension installed | ✅ |
+| Project directory created | ✅ |
+| .gitignore configured | ✅ |
+| Basic commands tested | ✅ |
 
-You now have a fully configured Terraform environment. In the next lab, you will deploy your first EC2 instance.
+> **Next:** Proceed to **Hands-On 1.2** to learn the Terraform lifecycle (init → plan → apply → destroy) in depth.

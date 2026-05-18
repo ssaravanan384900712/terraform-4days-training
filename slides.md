@@ -16,6 +16,7 @@ drawings:
   persist: false
 transition: slide-left
 mdc: true
+presenter: true
 vite:
   server:
     allowedHosts: true
