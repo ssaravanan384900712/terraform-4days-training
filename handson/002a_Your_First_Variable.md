@@ -8,18 +8,13 @@
 
 ## Concept
 
-In 001 we hardcoded everything. Real Terraform code uses **variables** to make configs reusable. This lab teaches how to declare a variable, reference it, and pass values 3 different ways.
+In 001 we hardcoded everything. Real Terraform code uses **variables** to make configs reusable. This lab teaches how to declare a variable, reference it, and override via `-var` CLI flag.
 
 ```
 ┌────────────────────────────────────────────────────────┐
 │                                                        │
 │  variables.tf  ──►  main.tf  ──►  resource created     │
 │  (declare)          (use var.X)                        │
-│                                                        │
-│  3 ways to set a variable's value:                     │
-│    1. terraform.tfvars file                            │
-│    2. -var='key=value' CLI flag                        │
-│    3. TF_VAR_name environment variable                 │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
@@ -142,81 +137,12 @@ Hello from the CLI!
 
 ---
 
-## Step 6 — Override via terraform.tfvars
-
-```bash
-cat > terraform.tfvars << 'EOF'
-message = "Hello from terraform.tfvars!"
-EOF
-```
-
-```bash
-terraform apply -auto-approve
-```
-
-```bash
-cat /tmp/greeting.txt
-```
-
-```
-Hello from terraform.tfvars!
-```
-
-> Terraform automatically loads `terraform.tfvars` if it exists. No flag needed.
-
----
-
-## Step 7 — Override via environment variable
-
-```bash
-export TF_VAR_message="Hello from environment variable!"
-terraform apply -auto-approve
-```
-
-```bash
-cat /tmp/greeting.txt
-```
-
-```
-Hello from environment variable!
-```
-
-```bash
-unset TF_VAR_message
-```
-
-> Pattern: `TF_VAR_` + variable name. Useful in CI/CD pipelines.
-
----
-
-## Variable Precedence (lowest to highest)
-
-```
-1. default in variables.tf     ← lowest priority
-2. terraform.tfvars file
-3. *.auto.tfvars files
-4. -var-file="custom.tfvars"
-5. -var='key=value' CLI flag
-6. TF_VAR_name environment var  ← highest priority
-```
-
-Clean up for next lab:
-
-```bash
-rm terraform.tfvars
-```
-
----
-
 ## Summary
 
 | Concept | What You Learned |
 |---------|-----------------|
 | `variable` block | Declare inputs with type and default |
 | `var.name` | Reference a variable in resources |
-| `terraform.tfvars` | Auto-loaded variable values file |
 | `-var` flag | Override from command line |
-| `TF_VAR_*` | Override from environment |
-| Precedence | default < tfvars < -var < TF_VAR_ |
 
-> **Next:** Proceed to **002b** for variable types and multiple resources with `for_each`.
+> **Next:** Proceed to **003** for tfvars, env vars, auto.tfvars, -var-file, and the full precedence order.
