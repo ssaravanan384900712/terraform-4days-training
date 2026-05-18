@@ -1,4 +1,4 @@
-# 002c — Outputs, Sensitive Files & Validation
+# 004 — Outputs, Sensitive Files & Validation
 
 **By:** Saravanan Sundaramoorthy
 **Environment:** Ubuntu Linux (GCE VM)
@@ -337,4 +337,4 @@ ls: cannot access '/tmp/secret.env': No such file or directory
 | **002b** | Types (string/number/bool/list/map), for_each, each.key/value |
 | **002c** | Outputs, sensitive, validation, state inspection |
 
-> **Next:** Proceed to **003** to learn the Random provider, resource chaining, and count.
+> **Next:** Proceed to **005** to learn the Random provider, resource chaining, and count.

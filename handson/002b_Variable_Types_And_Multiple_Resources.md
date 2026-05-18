@@ -244,4 +244,4 @@ tolist(["Alice", "Bob", "Charlie"])
 | `terraform console` | Interactive expression testing |
 | Key-based state | Removing a map key only destroys that resource |
 
-> **Next:** Proceed to **002c** for outputs, sensitive files, and validation.
+> **Next:** Proceed to **003** for tfvars, env vars, and variable precedence.

@@ -51,14 +51,12 @@ resource "local_file" "greeting" {
   content  = var.message
   filename = "/tmp/greeting.txt"
 }
-
-output "current_message" {
-  value = var.message
-}
 EOF
 
 terraform init
 ```
+
+> **Note:** We are NOT using outputs yet — that's a separate topic in 004. We verify values by reading the file directly with `cat`.
 
 ---
 
@@ -68,12 +66,11 @@ terraform init
 
 ```bash
 terraform apply -auto-approve
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_message = "Hello Folks of MassMutual"
+Hello Folks of MassMutual
 ```
 
 > The `default` from variables.tf was used.
@@ -90,23 +87,6 @@ EOF
 
 ```bash
 terraform apply -auto-approve
-```
-
-```
-  # local_file.greeting must be replaced
--/+ resource "local_file" "greeting" {
-      ~ content = "Hello Folks of MassMutual" -> "Hello from terraform.tfvars!"
-      ...
-    }
-
-Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
-
-Outputs:
-
-current_message = "Hello from terraform.tfvars!"
-```
-
-```bash
 cat /tmp/greeting.txt
 ```
 
@@ -116,23 +96,10 @@ Hello from terraform.tfvars!
 
 > **`terraform.tfvars` is auto-loaded** — Terraform looks for this exact filename and loads it automatically. No flag needed.
 
-### Step 4 — tfvars with multiple variables
+### Step 4 — Add a second variable to terraform.tfvars
 
 ```bash
-cat > terraform.tfvars << 'EOF'
-message = "Multi-var demo from tfvars"
-EOF
-```
-
-Add another variable to `variables.tf`:
-
-```bash
-cat > variables.tf << 'EOF'
-variable "message" {
-  description = "The greeting message"
-  type        = string
-  default     = "Hello Folks of MassMutual"
-}
+cat >> variables.tf << 'EOF'
 
 variable "author" {
   description = "Who wrote this config"
@@ -140,48 +107,22 @@ variable "author" {
   default     = "unknown"
 }
 EOF
-```
 
-Update `terraform.tfvars`:
+cat > main.tf << 'EOF'
+resource "local_file" "greeting" {
+  content  = "${var.message}\nAuthor: ${var.author}"
+  filename = "/tmp/greeting.txt"
+}
+EOF
 
-```bash
 cat > terraform.tfvars << 'EOF'
 message = "Multi-var demo from tfvars"
 author  = "Saravanan"
 EOF
 ```
 
-Update `main.tf` to use both:
-
-```bash
-cat > main.tf << 'EOF'
-resource "local_file" "greeting" {
-  content  = "${var.message}\nAuthor: ${var.author}"
-  filename = "/tmp/greeting.txt"
-}
-
-output "current_message" {
-  value = var.message
-}
-
-output "current_author" {
-  value = var.author
-}
-EOF
-```
-
 ```bash
 terraform apply -auto-approve
-```
-
-```
-Outputs:
-
-current_author  = "Saravanan"
-current_message = "Multi-var demo from tfvars"
-```
-
-```bash
 cat /tmp/greeting.txt
 ```
 
@@ -208,16 +149,15 @@ EOF
 
 ```bash
 terraform apply -auto-approve
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "Team Platform"
-current_message = "Multi-var demo from tfvars"
+Multi-var demo from tfvars
+Author: Team Platform
 ```
 
-> `author` came from `team.auto.tfvars` (overrode `terraform.tfvars`). `message` still from `terraform.tfvars`.
+> `author` came from `team.auto.tfvars` (overrode terraform.tfvars). `message` still from terraform.tfvars.
 
 ### Step 7 — Multiple auto.tfvars files (alphabetical order)
 
@@ -233,15 +173,15 @@ EOF
 
 ```bash
 terraform apply -auto-approve
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author = "From zzz.auto.tfvars"
+Multi-var demo from tfvars
+Author: From zzz.auto.tfvars
 ```
 
-> Multiple `*.auto.tfvars` are loaded **alphabetically**. `zzz` loads last and wins over `aaa` and `team`.
+> Multiple `*.auto.tfvars` load **alphabetically**. `zzz` loads last and wins.
 
 ```bash
 rm aaa.auto.tfvars zzz.auto.tfvars team.auto.tfvars
@@ -270,42 +210,39 @@ author  = "Platform Team"
 EOF
 ```
 
-### Step 9 — Apply with -var-file
+### Step 9 — Apply with -var-file for each environment
 
 ```bash
 terraform apply -auto-approve -var-file="dev.tfvars"
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "Dev Team"
-current_message = "Hello from DEV environment"
+Hello from DEV environment
+Author: Dev Team
 ```
 
 ```bash
 terraform apply -auto-approve -var-file="staging.tfvars"
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "QA Team"
-current_message = "Hello from STAGING environment"
+Hello from STAGING environment
+Author: QA Team
 ```
 
 ```bash
 terraform apply -auto-approve -var-file="prod.tfvars"
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "Platform Team"
-current_message = "Hello from PRODUCTION"
+Hello from PRODUCTION
+Author: Platform Team
 ```
 
-> **This is the standard pattern** for managing multiple environments with Terraform. Same code, different `.tfvars` file per env.
+> **This is the standard pattern** for multiple environments:
 
 ```
 project/
@@ -321,14 +258,14 @@ terraform apply -var-file="prod.tfvars"
 
 ### Step 10 — -var-file overrides terraform.tfvars
 
-Both `terraform.tfvars` and `-var-file` set `message`. Which wins?
-
 ```bash
 terraform apply -auto-approve -var-file="prod.tfvars"
+cat /tmp/greeting.txt
 ```
 
 ```
-current_message = "Hello from PRODUCTION"
+Hello from PRODUCTION
+Author: Platform Team
 ```
 
 > `-var-file` wins over `terraform.tfvars`. Higher precedence.
@@ -337,20 +274,19 @@ current_message = "Hello from PRODUCTION"
 
 ## Part 4 — -var CLI Flag
 
-### Step 11 — Override everything with -var
+### Step 11 — Override with -var
 
 ```bash
-terraform apply -auto-approve -var-file="prod.tfvars" -var='message=CLI wins over everything!'
+terraform apply -auto-approve -var-file="prod.tfvars" -var='message=CLI wins!'
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "Platform Team"
-current_message = "CLI wins over everything!"
+CLI wins!
+Author: Platform Team
 ```
 
-> `-var` overrides `-var-file` which overrides `terraform.tfvars`. `author` came from `prod.tfvars`, but `message` came from `-var`.
+> `message` from `-var` beat `-var-file`. `author` still from prod.tfvars.
 
 ### Step 12 — Multiple -var flags
 
@@ -358,13 +294,12 @@ current_message = "CLI wins over everything!"
 terraform apply -auto-approve \
   -var='message=Both overridden' \
   -var='author=CLI Author'
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "CLI Author"
-current_message = "Both overridden"
+Both overridden
+Author: CLI Author
 ```
 
 ---
@@ -378,157 +313,137 @@ export TF_VAR_message="Hello from TF_VAR environment!"
 export TF_VAR_author="Env Author"
 ```
 
-### Step 14 — Apply — env var wins over EVERYTHING
+### Step 14 — Env var wins over EVERYTHING
 
 ```bash
 terraform apply -auto-approve -var-file="prod.tfvars" -var='message=CLI attempt'
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_author  = "Env Author"
-current_message = "Hello from TF_VAR environment!"
+Hello from TF_VAR environment!
+Author: Env Author
 ```
 
-> Even though we used `-var-file` AND `-var`, the `TF_VAR_*` environment variable won. It has the **highest precedence**.
+> Even `-var-file` AND `-var` were set — `TF_VAR_*` still won. **Highest precedence.**
 
-### Step 15 — Verify and clean up env vars
+### Step 15 — Clean up env vars
 
 ```bash
-echo "TF_VAR_message = $TF_VAR_message"
-echo "TF_VAR_author  = $TF_VAR_author"
-
 unset TF_VAR_message
 unset TF_VAR_author
 ```
 
-> **When to use TF_VAR_:**
-> - CI/CD pipelines (GitHub Actions secrets → env vars)
-> - Docker containers
-> - Temporary overrides without editing files
-
 ---
 
-## Part 6 — The Complete Precedence Test
+## Part 6 — The Complete Precedence Peel-Off Test
 
-### Step 16 — All 5 sources active at once
+Set up ALL sources at once, then remove one at a time:
 
-Set up everything simultaneously:
+### Step 16 — All 5 sources active
 
 ```bash
-# 1. default is in variables.tf: "Hello Folks of MassMutual"
-# 2. terraform.tfvars already exists
-# 3. Create an auto.tfvars
 cat > override.auto.tfvars << 'EOF'
 message = "From auto.tfvars"
 EOF
-# 4. We'll use -var-file
-# 5. We'll use -var
-# 6. We'll use TF_VAR_
+
 export TF_VAR_message="ENV WINS"
-```
-
-```bash
 terraform apply -auto-approve -var-file="prod.tfvars" -var='message=CLI attempt'
+cat /tmp/greeting.txt
 ```
 
 ```
-Outputs:
-
-current_message = "ENV WINS"
+ENV WINS
 ```
 
-### Step 17 — Remove env var, test again
+### Step 17 — Remove env var
 
 ```bash
 unset TF_VAR_message
 terraform apply -auto-approve -var-file="prod.tfvars" -var='message=CLI attempt'
+cat /tmp/greeting.txt
 ```
 
 ```
-current_message = "CLI attempt"
+CLI attempt
 ```
 
-### Step 18 — Remove -var, test again
+### Step 18 — Remove -var (just use -var-file)
 
 ```bash
 terraform apply -auto-approve -var-file="prod.tfvars"
+cat /tmp/greeting.txt
 ```
 
 ```
-current_message = "Hello from PRODUCTION"
+Hello from PRODUCTION
 ```
 
-### Step 19 — Remove -var-file, test again
+### Step 19 — Remove -var-file (just auto-loaded files)
 
 ```bash
 terraform apply -auto-approve
+cat /tmp/greeting.txt
 ```
 
 ```
-current_message = "From auto.tfvars"
+From auto.tfvars
 ```
 
-### Step 20 — Remove auto.tfvars, test again
+### Step 20 — Remove auto.tfvars
 
 ```bash
 rm override.auto.tfvars
 terraform apply -auto-approve
+cat /tmp/greeting.txt
 ```
 
 ```
-current_message = "Multi-var demo from tfvars"
+Multi-var demo from tfvars
 ```
 
-### Step 21 — Remove terraform.tfvars, test again
+### Step 21 — Remove terraform.tfvars (back to default)
 
 ```bash
 rm terraform.tfvars
 terraform apply -auto-approve
+cat /tmp/greeting.txt
 ```
 
 ```
-current_message = "Hello Folks of MassMutual"
+Hello Folks of MassMutual
 ```
 
-> Back to the default! We peeled off each layer one by one, proving the precedence order.
+> Back to the default! Each layer peeled off proves the precedence order.
 
 ---
 
-## Precedence Summary Diagram
+## Precedence Summary
 
 ```
-TF_VAR_message="ENV"              ← 6. HIGHEST (wins over all)
-    │
+TF_VAR_message="ENV"              ← 6. HIGHEST
     ▼ (if not set)
 -var='message=CLI'                ← 5.
-    │
     ▼ (if not set)
 -var-file="prod.tfvars"           ← 4.
-    │
     ▼ (if not set)
 *.auto.tfvars                     ← 3. (alphabetical, last wins)
-    │
     ▼ (if not set)
 terraform.tfvars                  ← 2. (auto-loaded)
-    │
     ▼ (if not set)
-default = "..." in variables.tf   ← 1. LOWEST (fallback)
+default = "..." in variables.tf   ← 1. LOWEST
 ```
-
----
 
 ## When to Use What
 
 | Method | Best For |
 |--------|----------|
-| `default` | Sensible fallback, works out of the box |
-| `terraform.tfvars` | Local development defaults |
-| `*.auto.tfvars` | Team-shared overrides (committed to git) |
-| `-var-file` | Per-environment deploys (dev.tfvars, prod.tfvars) |
+| `default` | Sensible fallback |
+| `terraform.tfvars` | Local dev defaults |
+| `*.auto.tfvars` | Team-shared overrides |
+| `-var-file` | Per-environment deploys (dev/staging/prod) |
 | `-var` | One-off overrides, quick testing |
-| `TF_VAR_*` | CI/CD pipelines, secrets from vault/env |
+| `TF_VAR_*` | CI/CD pipelines, secrets from vault |
 
 ---
 
@@ -539,18 +454,4 @@ rm -f dev.tfvars staging.tfvars prod.tfvars
 terraform destroy -auto-approve
 ```
 
----
-
-## Summary
-
-| Concept | What You Learned |
-|---------|-----------------|
-| `terraform.tfvars` | Auto-loaded, no flag needed |
-| `*.auto.tfvars` | Auto-loaded, alphabetical order, last wins |
-| `-var-file` | Explicit file, overrides auto-loaded |
-| `-var` | CLI flag, overrides files |
-| `TF_VAR_*` | Environment variable, highest precedence |
-| Precedence | default < tfvars < auto.tfvars < -var-file < -var < TF_VAR_ |
-| Per-env pattern | Same code + different .tfvars per environment |
-
-> **Next:** Proceed to **004** for the Random provider, resource chaining, and count/for_each.
+> **Next:** Proceed to **004** for Terraform outputs — how to expose and query values after apply.
