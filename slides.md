@@ -640,24 +640,104 @@ Terraform v1.9.x
 </v-click>
 
 ---
+class: text-center flex flex-col items-center justify-center
+---
 
-# Introducing the Local Provider
+# <span class="text-teal-600">Terraform Core Concepts</span>
 
-<div class="grid grid-cols-2 gap-6">
+<div class="pt-4">
+  <span class="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white text-xl font-bold shadow-lg">
+    Learn Terraform Locally — No Cloud Account Needed
+  </span>
+</div>
+
+<div class="mt-6 text-gray-500">
+  Local Provider → Random Provider → State → Then AWS
+</div>
+
+---
+
+# The Terraform Lifecycle
+
+<div class="grid grid-cols-2 gap-4">
 <div>
 
-### Why Start Local?
+### The 4-Step Workflow
 
 <v-clicks>
 
-- No cloud account needed initially
-- Instant feedback loop
-- Learn HCL syntax safely
-- Understand core concepts first
+1. **`terraform init`** — Download providers & modules
+2. **`terraform plan`** — Preview changes (read-only)
+3. **`terraform apply`** — Execute and create resources
+4. **`terraform destroy`** — Remove everything
 
 </v-clicks>
 
 <v-click>
+
+### Plan Output Symbols
+
+```
++     create    (new resource)
+-     destroy   (remove resource)
+~     update    (modify in-place)
+-/+   replace   (destroy + recreate)
+```
+
+</v-click>
+
+</div>
+<div>
+
+<v-click>
+
+### What Gets Created
+
+| File/Dir | When | Git? |
+|----------|------|------|
+| `.terraform/` | `init` | ❌ Ignore |
+| `.terraform.lock.hcl` | `init` | ✅ Commit |
+| `terraform.tfstate` | `apply` | ❌ Ignore |
+| `*.tf` | You write | ✅ Commit |
+
+</v-click>
+
+<v-click>
+
+### .terraform/ Directory
+
+```
+.terraform/
+└── providers/
+    └── registry.terraform.io/
+        └── hashicorp/local/
+            └── 2.5.2/linux_amd64/
+                └── terraform-provider-local
+```
+
+<div class="p-1 bg-blue-50 text-gray-800 rounded text-xs">
+  Like <code>node_modules/</code> — downloaded binaries, never commit, recreated by <code>init</code>
+</div>
+
+</v-click>
+
+</div>
+</div>
+
+---
+
+# Local Provider — Your First Terraform Code
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+### Why Start Local?
+
+- No cloud account needed
+- Instant feedback loop
+- Learn HCL syntax safely
+
+### Hello Terraform!
 
 ```hcl
 terraform {
@@ -675,19 +755,14 @@ resource "local_file" "hello" {
 }
 ```
 
-</v-click>
-
 </div>
 <div>
 
-<v-click>
-
-### Try It!
+### Run It!
 
 ```bash
 $ terraform init
-Initializing provider plugins...
-- Installing hashicorp/local v2.5.1...
+- Installing hashicorp/local v2.5.2...
 
 $ terraform plan
 + local_file.hello will be created
@@ -698,11 +773,280 @@ Apply complete! Resources: 1 added
 
 $ cat hello.txt
 Hello, Terraform!
+
+# Update content, re-plan:
+$ terraform plan
+~ local_file.hello will be updated
+  ~ content = "Hello" -> "Updated!"
+
+# Destroy everything:
+$ terraform destroy
+Destroy complete! Resources: 1 destroyed.
 ```
 
-</v-click>
+</div>
+</div>
+
+---
+
+# Random Provider — Dynamic Values
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+### Why Random Provider?
+
+- Generate **unique names** for cloud resources
+- Avoid naming conflicts across teams
+- Learn **idempotency** — apply twice, same result
+
+### Resource Types
+
+| Resource | Generates |
+|----------|-----------|
+| `random_pet` | `happy-panda` |
+| `random_string` | `aB3$kL9m` |
+| `random_id` | `a1b2c3d4` (hex) |
+| `random_integer` | `8042` |
+| `random_uuid` | `550e8400-...` |
+| `random_shuffle` | Shuffled list |
 
 </div>
+<div>
+
+### Hands-On
+
+```hcl
+resource "random_pet" "server" {
+  length = 2
+}
+
+resource "random_string" "password" {
+  length  = 16
+  special = true
+}
+
+resource "random_id" "deploy" {
+  byte_length = 4
+}
+
+output "name" {
+  value = random_pet.server.id
+}
+output "password" {
+  value     = random_string.password.result
+  sensitive = true
+}
+output "deploy_id" {
+  value = random_id.deploy.hex
+}
+```
+
+```bash
+$ terraform apply -auto-approve
+name      = "prime-piglet"
+password  = <sensitive>
+deploy_id = "a1b7b474"
+```
+
+</div>
+</div>
+
+---
+
+# Random Provider — Keepers & Chaining
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+### Keepers (Force Recreation)
+
+```hcl
+resource "random_pet" "server" {
+  keepers = {
+    version = var.app_version
+  }
+}
+```
+
+<div class="p-1 bg-yellow-50 text-gray-800 rounded text-xs mt-1">
+  Change <code>var.app_version</code> → random_pet regenerates. Teaches "forces replacement" before AWS.
+</div>
+
+### Chaining Random + Local
+
+```hcl
+resource "random_pet" "project" {}
+
+resource "local_file" "config" {
+  filename = "${random_pet.project.id}.conf"
+  content  = "project=${random_pet.project.id}"
+}
+```
+
+<div class="p-1 bg-blue-50 text-gray-800 rounded text-xs mt-1">
+  Terraform auto-detects the dependency: random_pet creates first, then local_file uses the name.
+</div>
+
+</div>
+<div>
+
+### count + Random
+
+```hcl
+resource "random_pet" "servers" {
+  count = 3
+}
+
+output "names" {
+  value = random_pet.servers[*].id
+}
+# → ["light-fox", "bold-ram", "keen-ant"]
+```
+
+### for_each + Random
+
+```hcl
+variable "envs" {
+  default = {
+    dev  = 12, staging = 16, prod = 24
+  }
+}
+
+resource "random_string" "password" {
+  for_each = var.envs
+  length   = each.value
+  special  = true
+}
+
+output "passwords" {
+  value     = { for k, v in random_string.password : k => v.result }
+  sensitive = true
+}
+```
+
+</div>
+</div>
+
+---
+
+# Understanding terraform.tfstate
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+### What is State?
+
+```
+Your Code  ←→  State File  ←→  Real World
+(main.tf)     (tfstate)      (Resources)
+     │            │               │
+     └─── plan compares all 3 ───┘
+```
+
+<v-clicks>
+
+- JSON file mapping code → real resources
+- Terraform's **memory** of what it created
+- Contains **sensitive data** (passwords, IPs)
+- Without it: can't update, can't destroy
+- **Never commit to git**
+
+</v-clicks>
+
+</div>
+<div>
+
+### State CLI Commands
+
+```bash
+# List managed resources
+$ terraform state list
+local_file.config[0]
+local_file.config[1]
+random_id.deploy
+
+# Show one resource
+$ terraform state show random_id.deploy
+resource "random_id" "deploy" {
+    hex = "a1b7b474"
+    ...
+}
+
+# Rename without destroy
+$ terraform state mv \
+    random_id.old random_id.new
+
+# Stop managing (keep resource)
+$ terraform state rm local_file.config[2]
+
+# Backup state
+$ terraform state pull > backup.json
+```
+
+### Drift Detection
+
+```bash
+# Someone changed a file manually?
+$ terraform plan
+~ local_file.config[0] will be updated
+  ~ content = "CHANGED" -> "original"
+```
+
+</div>
+</div>
+
+---
+
+# 🔬 Mini-Project: Config File Generator
+
+<div class="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 text-gray-800 rounded-xl">
+
+### Build a multi-environment config generator using only local + random providers
+
+```
+variables.tf → main.tf → Generated Files:
+  environments      │      ├── dev/config.json + secrets.env
+  app_name           │      ├── staging/config.json + secrets.env
+  base_port          │      └── prod/config.json + secrets.env
+```
+
+**Concepts practiced:** `for_each`, `templatefile()`, `locals`, `random_password`, `variable validation`, `sensitive`, state commands
+
+</div>
+
+<div class="grid grid-cols-3 gap-3 mt-3 text-xs">
+
+<div class="p-2 bg-blue-50 text-gray-800 rounded">
+
+**Local/Random**
+- `local_file`
+- `random_password`
+- `templatefile()`
+- `for_each` envs
+
+</div>
+
+<div class="p-2 bg-green-50 text-gray-800 rounded">
+
+**AWS Equivalent**
+- `aws_s3_object`
+- `aws_secretsmanager_secret`
+- EC2 `user_data`
+- Multi-region deploy
+
+</div>
+
+<div class="p-2 bg-purple-50 text-gray-800 rounded">
+
+**Skills Gained**
+- HCL syntax mastery
+- Plan/apply cycle
+- State management
+- Ready for AWS!
+
+</div>
+
 </div>
 
 ---
