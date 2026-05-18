@@ -1,5 +1,6 @@
 # 001 — Install Terraform & Your First Resource (Live Demo)
 
+**By:** Saravanan Sundaramoorthy
 **Environment:** Ubuntu Linux (GCE VM)
 **Time:** ~15 minutes
 
