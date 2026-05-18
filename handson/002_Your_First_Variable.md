@@ -1,4 +1,4 @@
-# 002a — Your First Variable & Passing Values
+# 002 — Your First Variable
 
 **By:** Saravanan Sundaramoorthy
 **Environment:** Ubuntu Linux (GCE VM)

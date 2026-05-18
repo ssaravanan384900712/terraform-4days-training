@@ -1,4 +1,4 @@
-# 002b — Variable Types & Multiple Resources with for_each
+# 003 — Variable Types & Multiple Resources
 
 **By:** Saravanan Sundaramoorthy
 **Environment:** Ubuntu Linux (GCE VM)
@@ -244,4 +244,4 @@ tolist(["Alice", "Bob", "Charlie"])
 | `terraform console` | Interactive expression testing |
 | Key-based state | Removing a map key only destroys that resource |
 
-> **Next:** Proceed to **003** for tfvars, env vars, and variable precedence.
+> **Next:** Proceed to **004** for tfvars, env vars, and variable precedence.

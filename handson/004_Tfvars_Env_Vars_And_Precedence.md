@@ -1,4 +1,4 @@
-# 003 — tfvars, Environment Variables & Variable Precedence
+# 004 — tfvars, Environment Variables & Variable Precedence
 
 **By:** Saravanan Sundaramoorthy
 **Environment:** Ubuntu Linux (GCE VM)
@@ -454,4 +454,4 @@ rm -f dev.tfvars staging.tfvars prod.tfvars
 terraform destroy -auto-approve
 ```
 
-> **Next:** Proceed to **004** for Terraform outputs — how to expose and query values after apply.
+> **Next:** Proceed to **005** for Terraform outputs — how to expose and query values after apply.
