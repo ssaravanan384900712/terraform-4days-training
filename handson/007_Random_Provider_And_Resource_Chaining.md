@@ -1,4 +1,4 @@
-# 006 — Random Provider & Resource Chaining
+# 007 — Random Provider & Resource Chaining
 
 **By:** Saravanan Sundaramoorthy
 **Environment:** Ubuntu Linux (GCE VM)
