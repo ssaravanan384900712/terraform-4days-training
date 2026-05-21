@@ -1,0 +1,556 @@
+# Lab 058 — Creating and Using Terraform Modules (No AWS Required)
+
+**By: Saravanan Sundaramoorthy**
+**Environment:** Ubuntu Linux (any machine with Terraform ≥ 1.3)
+**Time:** ~30 minutes
+
+---
+
+## What You'll Learn
+
+| Topic | Concept |
+|-------|---------|
+| Module structure | `variables.tf`, `main.tf`, `outputs.tf` inside a sub-directory |
+| Module input/output | Passing values in, surfacing values out |
+| Module composition | Calling one module from another (nesting) |
+| Local modules | `source = "./modules/..."` — no registry required |
+| Multiple instances | Calling the same module twice with different inputs |
+| Provider inheritance | Why modules must NOT contain a `provider {}` block |
+
+Providers used: `random` and `local` — zero cloud credentials needed.
+
+---
+
+## Concept: What Is a Module?
+
+```text
+Without modules                      With modules
+─────────────────────────────        ──────────────────────────────
+root/main.tf  ← 300 lines,           modules/
+               random_id,              ├── app-identity/
+               local_file,             │   ├── variables.tf
+               random_password,        │   ├── main.tf
+               more local_file …       │   └── outputs.tf
+                                       └── config-file/
+                                           ├── variables.tf
+                                           ├── main.tf
+                                           └── outputs.tf
+
+                                     root/main.tf  ← 30 lines,
+                                       module "web" { source = "./modules/app-identity" }
+                                       module "api" { source = "./modules/app-identity" }
+                                       module "cfg" { source = "./modules/config-file" }
+```
+
+A module is just a **directory of `.tf` files** with clearly defined inputs (`variables.tf`) and outputs (`outputs.tf`). The caller owns the `provider {}` block — the module inherits it automatically.
+
+---
+
+## Project Layout
+
+```
+terraform-modules-058-demo/
+├── main.tf               ← root module — calls child modules
+├── variables.tf
+├── outputs.tf
+├── terraform.tfvars
+└── modules/
+    ├── app-identity/     ← Module 1: generates a unique app ID + password
+    │   ├── variables.tf
+    │   ├── main.tf
+    │   └── outputs.tf
+    └── config-file/      ← Module 2: writes a local config file from a template
+        ├── variables.tf
+        ├── main.tf
+        └── outputs.tf
+```
+
+---
+
+## Step 1 — Create the Directory Tree
+
+```bash
+mkdir -p ~/terraform-modules-058-demo/modules/app-identity
+mkdir -p ~/terraform-modules-058-demo/modules/config-file
+cd ~/terraform-modules-058-demo
+```
+
+---
+
+## Step 2 — Module 1: `app-identity`
+
+This module generates a short unique ID and a random password for an application.
+
+### `modules/app-identity/variables.tf`
+
+```hcl
+variable "app_name" {
+  description = "Name of the application"
+  type        = string
+}
+
+variable "environment" {
+  description = "Deployment environment label"
+  type        = string
+  default     = "dev"
+}
+
+variable "password_length" {
+  description = "Length of the generated password"
+  type        = number
+  default     = 16
+}
+```
+
+### `modules/app-identity/main.tf`
+
+```hcl
+resource "random_id" "app" {
+  byte_length = 4
+  keepers = {
+    app_name    = var.app_name
+    environment = var.environment
+  }
+}
+
+resource "random_password" "app" {
+  length           = var.password_length
+  special          = true
+  override_special = "!#$%"
+  keepers = {
+    app_name = var.app_name
+  }
+}
+```
+
+### `modules/app-identity/outputs.tf`
+
+```hcl
+output "app_id" {
+  description = "Short unique ID for the app"
+  value       = "${var.app_name}-${random_id.app.hex}"
+}
+
+output "password" {
+  description = "Generated password — sensitive"
+  value       = random_password.app.result
+  sensitive   = true
+}
+
+output "full_label" {
+  description = "Human-readable label: app + env + id"
+  value       = "${var.app_name}-${var.environment}-${random_id.app.hex}"
+}
+```
+
+---
+
+## Step 3 — Module 2: `config-file`
+
+This module writes a plain-text config file to disk using the `local_file` resource.
+
+### `modules/config-file/variables.tf`
+
+```hcl
+variable "app_id" {
+  description = "App ID from app-identity module"
+  type        = string
+}
+
+variable "environment" {
+  description = "Deployment environment"
+  type        = string
+}
+
+variable "port" {
+  description = "Application port"
+  type        = number
+  default     = 8080
+}
+
+variable "owner" {
+  description = "Owner tag written into the config"
+  type        = string
+  default     = "saravanans"
+}
+
+variable "output_dir" {
+  description = "Directory where the config file is written"
+  type        = string
+  default     = "/tmp"
+}
+```
+
+### `modules/config-file/main.tf`
+
+```hcl
+locals {
+  filename = "${var.output_dir}/${var.app_id}.conf"
+  content  = <<-EOT
+    # Generated by Terraform
+    # Module: config-file
+    APP_ID      = ${var.app_id}
+    ENVIRONMENT = ${var.environment}
+    PORT        = ${var.port}
+    OWNER       = ${var.owner}
+    PROJECT     = robochef.co
+  EOT
+}
+
+resource "local_file" "config" {
+  content  = local.content
+  filename = local.filename
+}
+```
+
+### `modules/config-file/outputs.tf`
+
+```hcl
+output "config_path" {
+  description = "Absolute path of the written config file"
+  value       = local_file.config.filename
+}
+
+output "config_content" {
+  description = "Content written to the config file"
+  value       = local.content
+}
+```
+
+---
+
+## Step 4 — Root Module
+
+### `variables.tf`
+
+```hcl
+variable "owner" {
+  description = "Owner name used across all modules"
+  type        = string
+  default     = "saravanans"
+}
+```
+
+### `terraform.tfvars`
+
+```hcl
+owner = "saravanans"
+```
+
+### `main.tf`
+
+```hcl
+terraform {
+  required_version = ">= 1.3"
+  required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.0"
+    }
+  }
+}
+
+# ── Web app identity ──────────────────────────────────
+module "web_identity" {
+  source = "./modules/app-identity"
+
+  app_name    = "robochef-web"
+  environment = "dev"
+}
+
+# ── API app identity ──────────────────────────────────
+module "api_identity" {
+  source = "./modules/app-identity"
+
+  app_name        = "robochef-api"
+  environment     = "dev"
+  password_length = 24
+}
+
+# ── Config file for web app ───────────────────────────
+module "web_config" {
+  source = "./modules/config-file"
+
+  app_id      = module.web_identity.app_id
+  environment = "dev"
+  port        = 3000
+  owner       = var.owner
+  output_dir  = "/tmp"
+}
+
+# ── Config file for API app ───────────────────────────
+module "api_config" {
+  source = "./modules/config-file"
+
+  app_id      = module.api_identity.app_id
+  environment = "dev"
+  port        = 8080
+  owner       = var.owner
+  output_dir  = "/tmp"
+}
+```
+
+### `outputs.tf`
+
+```hcl
+output "web_label" {
+  value = module.web_identity.full_label
+}
+
+output "api_label" {
+  value = module.api_identity.full_label
+}
+
+output "web_config_path" {
+  value = module.web_config.config_path
+}
+
+output "api_config_path" {
+  value = module.api_config.config_path
+}
+
+output "web_password" {
+  value     = module.web_identity.password
+  sensitive = true
+}
+
+output "api_password" {
+  value     = module.api_identity.password
+  sensitive = true
+}
+```
+
+---
+
+## Step 5 — Init and Apply
+
+```bash
+terraform init
+```
+
+Expected:
+```
+Initializing modules...
+- api_config in modules/config-file
+- api_identity in modules/app-identity
+- web_config in modules/config-file
+- web_identity in modules/app-identity
+
+Initializing provider plugins...
+- Finding hashicorp/random versions matching "~> 3.0"...
+- Finding hashicorp/local versions matching "~> 2.0"...
+- Installing hashicorp/random v3.7.2...
+- Installing hashicorp/local v2.5.3...
+
+Terraform has been successfully initialized!
+```
+
+```bash
+terraform apply --auto-approve
+```
+
+Expected output:
+```
+module.web_identity.random_id.app: Creating...
+module.api_identity.random_id.app: Creating...
+module.web_identity.random_password.app: Creating...
+module.api_identity.random_password.app: Creating...
+module.web_identity.random_id.app: Creation complete after 0s [id=a1b2c3d4]
+module.api_identity.random_id.app: Creation complete after 0s [id=e5f6a7b8]
+module.web_identity.random_password.app: Creation complete after 0s [id=none]
+module.api_identity.random_password.app: Creation complete after 0s [id=none]
+module.web_config.local_file.config: Creating...
+module.api_config.local_file.config: Creating...
+module.web_config.local_file.config: Creation complete after 0s [id=...]
+module.api_config.local_file.config: Creation complete after 0s [id=...]
+
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+
+Outputs:
+api_config_path  = "/tmp/robochef-api-e5f6a7b8.conf"
+api_label        = "robochef-api-dev-e5f6a7b8"
+api_password     = <sensitive>
+web_config_path  = "/tmp/robochef-web-a1b2c3d4.conf"
+web_label        = "robochef-web-dev-a1b2c3d4"
+web_password     = <sensitive>
+```
+
+---
+
+## Step 6 — Inspect Results
+
+```bash
+# See the generated config files
+cat /tmp/robochef-web-*.conf
+```
+
+```
+# Generated by Terraform
+# Module: config-file
+APP_ID      = robochef-web-a1b2c3d4
+ENVIRONMENT = dev
+PORT        = 3000
+OWNER       = saravanans
+PROJECT     = robochef.co
+```
+
+```bash
+cat /tmp/robochef-api-*.conf
+```
+
+```
+# Generated by Terraform
+# Module: config-file
+APP_ID      = robochef-api-e5f6a7b8
+ENVIRONMENT = dev
+PORT        = 8080
+OWNER       = saravanans
+PROJECT     = robochef.co
+```
+
+```bash
+# Read sensitive output explicitly
+terraform output -raw web_password
+terraform output -raw api_password
+```
+
+---
+
+## Step 7 — Understand Module Isolation
+
+Each module call is completely independent. You called `app-identity` twice — once for web, once for api — and got two different IDs and passwords because `keepers` includes `app_name`.
+
+```bash
+terraform state list
+```
+
+```
+module.api_config.local_file.config
+module.api_identity.random_id.app
+module.api_identity.random_password.app
+module.web_config.local_file.config
+module.web_identity.random_id.app
+module.web_identity.random_password.app
+```
+
+Each resource is **namespaced** under its module: `module.<name>.<resource_type>.<resource_name>`. This prevents naming collisions when the same module is called multiple times.
+
+```bash
+# Inspect a single module's state
+terraform state show module.web_identity.random_id.app
+```
+
+---
+
+## Step 8 — Change a Module Input and Re-Apply
+
+Update the web app's port from 3000 to 3001 in `main.tf`:
+
+```hcl
+module "web_config" {
+  ...
+  port = 3001   # was 3000
+}
+```
+
+```bash
+terraform apply --auto-approve
+```
+
+Only `module.web_config.local_file.config` changes — the identity module is untouched:
+
+```
+module.web_config.local_file.config: Destroying... [id=...]
+module.web_config.local_file.config: Destruction complete after 0s
+module.web_config.local_file.config: Creating...
+module.web_config.local_file.config: Creation complete after 0s
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+```
+
+---
+
+## Step 9 — Module Output Chaining
+
+Notice how the root `main.tf` passes the output of one module directly into another:
+
+```hcl
+module "web_config" {
+  source = "./modules/config-file"
+  app_id = module.web_identity.app_id   # ← output of module 1 is input to module 2
+  ...
+}
+```
+
+Terraform automatically resolves the dependency: `web_identity` is applied first, its `app_id` output is captured, then `web_config` is applied. You do not need an explicit `depends_on`.
+
+---
+
+## Step 10 — Cleanup
+
+```bash
+terraform destroy --auto-approve
+rm -rf .terraform
+```
+
+```
+module.api_config.local_file.config: Destroying...
+module.web_config.local_file.config: Destroying...
+module.api_config.local_file.config: Destruction complete after 0s
+module.web_config.local_file.config: Destruction complete after 0s
+module.api_identity.random_password.app: Destroying...
+module.web_identity.random_password.app: Destroying...
+module.api_identity.random_id.app: Destroying...
+module.web_identity.random_id.app: Destroying...
+...
+
+Destroy complete! Resources: 6 destroyed.
+```
+
+---
+
+## Key Concepts
+
+| Concept | Explanation |
+|---------|-------------|
+| **Module directory** | Any folder with `.tf` files — no special marker needed |
+| **`source = "./modules/app-identity"`** | Local path — relative to the root module |
+| **No `provider {}` in modules** | Modules inherit the provider from the caller; adding one locks the module to one config |
+| **Input variables** | Declared in `variables.tf`; passed by the caller via `module "x" { var = value }` |
+| **Output values** | Declared in `outputs.tf`; referenced by the caller as `module.x.output_name` |
+| **Module namespacing** | State uses `module.<name>.<resource>` — safe to call the same module multiple times |
+| **Output chaining** | Pass `module.a.output` as input to `module.b` — Terraform resolves order automatically |
+| **`keepers`** | Map passed to `random_*` resources — forces recreation only when a keeper value changes |
+
+---
+
+## Module Rules Checklist
+
+```
+✅ modules/app-identity/variables.tf  — all inputs declared with type + description
+✅ modules/app-identity/outputs.tf    — all values the caller needs are exported
+✅ NO provider {} block inside modules
+✅ Root main.tf owns the provider {} and terraform {} blocks
+✅ Module called twice with different inputs → two independent sets of resources
+✅ Output of module A passed directly as input to module B
+✅ terraform state list shows module.<name>. prefix on every resource
+```
+
+---
+
+## Concept Summary
+
+```
+module directory            → any folder of .tf files with variables + outputs
+source = "./modules/..."    → local module, no registry, no internet required
+provider {} stays in root   → modules inherit it — never define provider in a module
+module called twice         → two independent resource sets, no name collision
+module.a.output → module.b  → Terraform resolves apply order automatically
+terraform state list        → module.<name>.<type>.<name> namespacing
+terraform destroy           → cleans up all resources across all modules
+rm -rf .terraform           → frees provider binary disk space
+```
