@@ -127,6 +127,25 @@ All hands-on labs in order. AWS labs are live-tested in ap-south-1 (Mumbai).
 
 ---
 
+## Modules, Cloud & Policy (Labs 058–060)
+
+| Lab | File | Project Dir | Description |
+|-----|------|-------------|-------------|
+| 058 | [058_Terraform_Non_AWS_Modules_Creation_And_Usage.md](058_Terraform_Non_AWS_Modules_Creation_And_Usage.md) | `~/terraform-modules-058-demo/` | Local module creation and usage — `app-identity` + `config-file` modules, output chaining, multiple instances; uses `random` + `local` providers only (no cloud credentials) |
+| 059 | [059_Terraform_Cloud_Intro_And_GitHub_VCS_Handson.md](059_Terraform_Cloud_Intro_And_GitHub_VCS_Handson.md) | GitHub repo `tf-cloud-059-demo` | Terraform Cloud org + workspace, GitHub VCS integration, remote runs, `terraform login`, `cloud {}` block, remote state |
+| 060 | [060_Terraform_Sentinel_Policy_As_Code.md](060_Terraform_Sentinel_Policy_As_Code.md) | GitHub repo (policy set) | Sentinel policy-as-code — `require-resource-tags` (advisory) + `restrict-instance-types` (soft-mandatory), `sentinel.hcl`, local CLI testing with mock data |
+
+---
+
+## Testing & DRY on kind (Labs 061–062)
+
+| Lab | File | Project Dir | Description |
+|-----|------|-------------|-------------|
+| 061 | [061_Terratest_On_Kind_K8s_Lab_057.md](061_Terratest_On_Kind_K8s_Lab_057.md) | `~/terraform-kind-057-demo/test/` | Terratest Go integration tests against the lab-057 kind cluster — `InitAndApply`, `WaitUntilPodAvailable`, `GetService`, `GetConfigMap` assertions, `defer Destroy` |
+| 062 | [062_Terragrunt_On_Kind_K8s_Lab_057.md](062_Terragrunt_On_Kind_K8s_Lab_057.md) | `~/terragrunt-kind-062-demo/` | Terragrunt DRY wrapper — dev (1 replica) + prod (3 replicas) environments calling the lab-057 module via `source`, `run-all apply`, `dependency {}` bonus |
+
+---
+
 ## Quick Reference
 
 | Topic | Lab(s) |
@@ -134,20 +153,21 @@ All hands-on labs in order. AWS labs are live-tested in ap-south-1 (Mumbai).
 | Variables & types | 002, 003, 004 |
 | State management | 005, 018, 019, 049, 050 |
 | Remote backends | 018 (S3), 019 (DynamoDB), 049 (Consul), 050 (etcd) |
-| Modules | 025, 026, 027 |
+| Modules | 025, 026, 027, 058 (non-AWS) |
 | Loops | 012 (count), 013 (for_each), 038 (for expressions, dynamic) |
 | Conditionals | 039 |
 | Lifecycle | 037, 048 (zero-downtime) |
 | Provisioners | 042, 043, 052, 053 |
 | Import | 031, 056 |
-| Testing | 044, 045 |
+| Testing | 044, 045, 061 (Terratest on kind) |
 | Workspaces | 036 |
 | Functions | 040, 041 |
-| Security | 007 (sensitive), 024 (IAM), 032 (Secrets Manager), 051 (Vault) |
+| Security | 007 (sensitive), 024 (IAM), 032 (Secrets Manager), 051 (Vault), 060 (Sentinel) |
 | Containers | 010 (Docker), 030 (ECS Fargate), 033 (EKS), 034 (k8s EKS), 057 (k8s kind local) |
 | Serverless | 029 (Lambda + API Gateway) |
 | Networking | 022 (VPC), 016/020 (EC2) |
-| Custom tooling | 046 (Terragrunt), 054 (GoLang), 055 (Custom Provider) |
+| Custom tooling | 046 (Terragrunt generic), 054 (GoLang), 055 (Custom Provider), 062 (Terragrunt on kind) |
+| Terraform Cloud | 059 (VCS workflow), 060 (Sentinel policies) |
 
 ---
 
