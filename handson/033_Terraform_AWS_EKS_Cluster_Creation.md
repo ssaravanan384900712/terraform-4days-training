@@ -74,8 +74,14 @@ EKS separates the Kubernetes control plane (managed by AWS) from the data plane 
 | 6 | `aws_iam_role_policy_attachment` | ECR read-only | Attaches `AmazonEC2ContainerRegistryReadOnly` to node role |
 | 7 | `aws_eks_cluster` | `terraform-033-eks` | EKS control plane, version 1.31 |
 | 8 | `aws_eks_node_group` | `terraform-033-nodes` | Managed node group: 1× t3.small |
+| 9 | `kubernetes_namespace` | `robochef` | K8s namespace for app resources |
+| 10 | `kubernetes_config_map` | `robochef-config` | App env vars injected into pods |
+| 11 | `kubernetes_deployment` | `robochef-deployment` | 1× nginx:alpine pod with resource limits |
+| 12 | `kubernetes_service` | `robochef-service` | ClusterIP service on port 80 |
 | — | `data.aws_vpc.default` | — | Looks up the default VPC ID |
 | — | `data.aws_subnets.default` | — | Lists all subnets in the default VPC |
+| — | `data.aws_eks_cluster` | — | Reads cluster endpoint + CA cert for kubernetes provider |
+| — | `data.aws_eks_cluster_auth` | — | Fetches short-lived IAM token for kubernetes provider |
 
 ---
 
@@ -121,12 +127,29 @@ cd ~/terraform-aws-eks-033-demo
 terraform {
   required_version = ">= 1.3"
   required_providers {
-    aws = { source = "hashicorp/aws", version = "~> 6.0" }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.0"
+    }
   }
 }
 
-provider "aws" { region = var.aws_region }
+provider "aws" {
+  region = var.aws_region
+}
+
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.this.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.this.token
+}
 ```
+
+> The `kubernetes` provider reads its endpoint, CA cert, and auth token directly from the EKS cluster data sources defined in `k8s.tf`. No static kubeconfig file is needed.
 
 ---
 
@@ -134,7 +157,7 @@ provider "aws" { region = var.aws_region }
 
 ```hcl
 variable "aws_region" {
-  description = "AWS region to deploy EKS cluster"
+  description = "AWS region to deploy the EKS cluster"
   type        = string
   default     = "ap-south-1"
 }
@@ -149,6 +172,18 @@ variable "node_instance_type" {
   description = "EC2 instance type for the managed node group (must be free-tier eligible on restricted accounts)"
   type        = string
   default     = "t3.small"
+}
+
+variable "app_name" {
+  description = "Application name — used as prefix for k8s Namespace, Deployment, Service, ConfigMap"
+  type        = string
+  default     = "robochef"
+}
+
+variable "replicas" {
+  description = "Number of pod replicas in the Deployment"
+  type        = number
+  default     = 1
 }
 ```
 
@@ -303,6 +338,180 @@ output "kubeconfig_cmd" {
   description = "Run this command to configure kubectl access"
   value       = "aws eks update-kubeconfig --region ap-south-1 --name terraform-033-eks"
 }
+```
+
+---
+
+## File: `k8s.tf`
+
+Kubernetes resources deployed onto the EKS cluster via the Terraform `kubernetes` provider.  
+The two `data` blocks at the top supply the endpoint, CA cert, and auth token to the provider.
+
+```hcl
+# ── EKS auth data sources (used by the kubernetes provider in providers.tf) ───
+data "aws_eks_cluster" "this" {
+  name = aws_eks_cluster.this.name
+}
+
+data "aws_eks_cluster_auth" "this" {
+  name = aws_eks_cluster.this.name
+}
+
+# ── 1. Namespace ───────────────────────────────────────────────────────────────
+resource "kubernetes_namespace" "app" {
+  metadata {
+    name = var.app_name
+
+    labels = {
+      owner   = "saravanans"
+      project = "robochef.co"
+    }
+  }
+}
+
+# ── 2. ConfigMap ───────────────────────────────────────────────────────────────
+resource "kubernetes_config_map" "app" {
+  metadata {
+    name      = "${var.app_name}-config"
+    namespace = kubernetes_namespace.app.metadata[0].name
+
+    labels = {
+      owner   = "saravanans"
+      project = "robochef.co"
+    }
+  }
+
+  data = {
+    APP_ENV     = "production"
+    APP_OWNER   = "saravanans"
+    APP_PROJECT = "robochef.co"
+    APP_PORT    = "80"
+  }
+}
+
+# ── 3. Deployment ──────────────────────────────────────────────────────────────
+resource "kubernetes_deployment" "app" {
+  metadata {
+    name      = "${var.app_name}-deployment"
+    namespace = kubernetes_namespace.app.metadata[0].name
+
+    labels = {
+      owner   = "saravanans"
+      project = "robochef.co"
+    }
+  }
+
+  spec {
+    replicas = var.replicas
+
+    selector {
+      match_labels = {
+        app = var.app_name
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app     = var.app_name
+          owner   = "saravanans"
+          project = "robochef.co"
+        }
+      }
+
+      spec {
+        container {
+          name  = var.app_name
+          image = "nginx:alpine"
+
+          port {
+            container_port = 80
+          }
+
+          # Inject every key from the ConfigMap as an environment variable
+          env_from {
+            config_map_ref {
+              name = kubernetes_config_map.app.metadata[0].name
+            }
+          }
+
+          # Resource requests tell the scheduler the minimum headroom needed.
+          # Limits cap how much the container can consume.
+          # Both are important on small nodes like t3.small (2 vCPU, 2 GB RAM).
+          resources {
+            requests = {
+              cpu    = "50m"
+              memory = "64Mi"
+            }
+            limits = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# ── 4. Service ─────────────────────────────────────────────────────────────────
+resource "kubernetes_service" "app" {
+  metadata {
+    name      = "${var.app_name}-service"
+    namespace = kubernetes_namespace.app.metadata[0].name
+
+    labels = {
+      owner   = "saravanans"
+      project = "robochef.co"
+    }
+  }
+
+  spec {
+    type = "ClusterIP"
+
+    selector = {
+      app = var.app_name
+    }
+
+    port {
+      port        = 80
+      target_port = 80
+      protocol    = "TCP"
+    }
+  }
+}
+```
+
+### What `k8s.tf` creates
+
+| # | Resource | Name | Purpose |
+|---|----------|------|---------|
+| 1 | `kubernetes_namespace` | `robochef` | Isolated namespace for all app resources |
+| 2 | `kubernetes_config_map` | `robochef-config` | Env vars (APP_ENV, APP_OWNER, APP_PROJECT, APP_PORT) injected into pods |
+| 3 | `kubernetes_deployment` | `robochef-deployment` | 1× nginx:alpine pod with ConfigMap env_from + resource limits |
+| 4 | `kubernetes_service` | `robochef-service` | ClusterIP on port 80 pointing to the Deployment pods |
+
+### Verify after apply
+
+```bash
+# Update kubeconfig first if not already done
+aws eks update-kubeconfig --region ap-south-1 --name terraform-033-eks
+
+# Check all resources in the namespace
+kubectl get all -n robochef
+
+# Verify ConfigMap env vars are injected
+POD=$(kubectl get pods -n robochef -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -it $POD -n robochef -- env | grep APP
+# APP_ENV=production
+# APP_OWNER=saravanans
+# APP_PROJECT=robochef.co
+# APP_PORT=80
+
+# Access nginx via port-forward
+kubectl port-forward svc/robochef-service 8080:80 -n robochef &
+curl http://localhost:8080
+kill %1
 ```
 
 ---
