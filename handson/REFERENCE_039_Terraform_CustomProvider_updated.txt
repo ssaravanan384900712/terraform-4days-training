@@ -1,0 +1,403 @@
+saravanans@skillsasap-vm:~/terraform_custom_provider$
+saravanans@skillsasap-vm:~/terraform_custom_provider$ tree . 
+.
+├── main.go
+├── provider.go
+└── resource_server.go
+
+0 directories, 3 files
+saravanans@skillsasap-vm33:~$
+saravanans@skillsasap-vm33:~$ mkdir terraform_custom_provider
+saravanans@skillsasap-vm33:~$ cd terraform_custom_provider
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ nano main.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ cat main.go
+
+package main
+
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/plugin"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+)
+
+func main() {
+	plugin.Serve(&plugin.ServeOpts{
+		ProviderFunc: func() terraform.ResourceProvider {
+			return Provider()
+		},
+	})
+}
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ nano provider.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ cat provider.go
+package main
+
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+)
+
+func Provider() *schema.Provider {
+	return &schema.Provider{
+		ResourcesMap: map[string]*schema.Resource{
+			"example_server": resourceServer(),
+		},
+	}
+}
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ nano resource_server.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ cat resource_server.go
+package main
+
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
+	"net/http"
+)
+
+func resourceServer() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceServerCreate,
+		Read:   resourceServerRead,
+		Update: resourceServerUpdate,
+		Delete: resourceServerDelete,
+
+		Schema: map[string]*schema.Schema{
+			"uuid_count": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+}
+
+func resourceServerCreate(d *schema.ResourceData, m interface{}) error {
+	uuid_count := d.Get("uuid_count").(string)
+
+	d.SetId(uuid_count)
+
+	// https://www.uuidtools.com/api/generate/v1/count/uuid_count
+	resp, err := http.Get("https://www.uuidtools.com/api/generate/v1/count/" + uuid_count)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	return resourceServerRead(d, m)
+}
+
+func resourceServerRead(d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
+func resourceServerUpdate(d *schema.ResourceData, m interface{}) error {
+	return resourceServerRead(d, m)
+}
+
+func resourceServerDelete(d *schema.ResourceData, m interface{}) error {
+	d.SetId("")
+	return nil
+}
+
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ go mod init terraform-provider-example
+go: creating new go.mod: module terraform-provider-example
+go: to add module requirements and sums:
+	go mod tidy
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ go fmt
+main.go
+resource_server.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls
+go.mod  main.go  provider.go  resource_server.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ go mod tidy
+go: finding module for package github.com/hashicorp/terraform-plugin-sdk/helper/schema
+go: downloading github.com/hashicorp/terraform-plugin-sdk v1.17.2
+go: finding module for package github.com/hashicorp/terraform-plugin-sdk/plugin
+go: finding module for package github.com/hashicorp/terraform-plugin-sdk/terraform
+go: found github.com/hashicorp/terraform-plugin-sdk/helper/schema in github.com/hashicorp/terraform-plugin-sdk v1.17.2
+go: found github.com/hashicorp/terraform-plugin-sdk/plugin in github.com/hashicorp/terraform-plugin-sdk v1.17.2
+go: found github.com/hashicorp/terraform-plugin-sdk/terraform in github.com/hashicorp/terraform-plugin-sdk v1.17.2
+go: downloading github.com/hashicorp/go-multierror v1.0.0
+go: downloading github.com/mitchellh/copystructure v1.0.0
+go: downloading github.com/mitchellh/mapstructure v1.1.2
+go: downloading github.com/zclconf/go-cty v1.8.2
+go: downloading github.com/davecgh/go-spew v1.1.1
+go: downloading github.com/google/go-cmp v0.5.5
+go: downloading github.com/hashicorp/go-hclog v0.9.2
+go: downloading github.com/hashicorp/go-plugin v1.3.0
+go: downloading google.golang.org/grpc v1.32.0
+go: downloading github.com/golang/mock v1.4.4
+go: downloading github.com/agext/levenshtein v1.2.2
+go: downloading github.com/hashicorp/errwrap v1.0.0
+go: downloading github.com/hashicorp/go-uuid v1.0.1
+go: downloading github.com/hashicorp/go-version v1.3.0
+go: downloading github.com/hashicorp/hcl/v2 v2.8.2
+go: downloading github.com/hashicorp/hcl v0.0.0-20170504190234-a4b07c25de5f
+go: downloading github.com/mitchellh/reflectwalk v1.0.1
+go: downloading github.com/go-test/deep v1.0.3
+go: downloading github.com/apparentlymart/go-dump v0.0.0-20190214190832-042adf3cf4a0
+go: downloading golang.org/x/text v0.3.5
+go: downloading golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+go: downloading github.com/stretchr/testify v1.7.0
+go: downloading github.com/golang/protobuf v1.4.2
+go: downloading github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
+go: downloading github.com/mitchellh/go-testing-interface v1.0.4
+go: downloading github.com/oklog/run v1.0.0
+go: downloading golang.org/x/net v0.0.0-20210326060303-6b1517762897
+go: downloading github.com/jhump/protoreflect v1.6.0
+go: downloading github.com/hashicorp/go-getter v1.5.3
+go: downloading github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
+go: downloading github.com/mitchellh/cli v1.1.2
+go: downloading golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+go: downloading github.com/vmihailenco/msgpack/v4 v4.3.12
+go: downloading github.com/vmihailenco/msgpack v3.3.3+incompatible
+go: downloading github.com/apparentlymart/go-textseg/v12 v12.0.0
+go: downloading github.com/apparentlymart/go-textseg v1.0.0
+go: downloading github.com/mitchellh/go-wordwrap v1.0.0
+go: downloading github.com/kr/pretty v0.2.1
+go: downloading github.com/kylelemons/godebug v1.1.0
+go: downloading github.com/spf13/afero v1.2.2
+go: downloading github.com/zclconf/go-cty-yaml v1.0.2
+go: downloading github.com/mitchellh/go-homedir v1.1.0
+go: downloading github.com/hashicorp/logutils v1.0.0
+go: downloading github.com/hashicorp/go-cleanhttp v0.5.2
+go: downloading github.com/hashicorp/terraform-config-inspect v0.0.0-20191212124732-c6ae6269b9d7
+go: downloading github.com/pmezard/go-difflib v1.0.0
+go: downloading gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+go: downloading google.golang.org/protobuf v1.25.0
+go: downloading google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
+go: downloading cloud.google.com/go/storage v1.10.0
+go: downloading cloud.google.com/go v0.65.0
+go: downloading github.com/aws/aws-sdk-go v1.37.0
+go: downloading github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
+go: downloading github.com/hashicorp/go-safetemp v1.0.0
+go: downloading github.com/klauspost/compress v1.11.2
+go: downloading github.com/ulikunitz/xz v0.5.8
+go: downloading google.golang.org/api v0.34.0
+go: downloading golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
+go: downloading github.com/Masterminds/sprig v2.22.0+incompatible
+go: downloading github.com/armon/go-radix v1.0.0
+go: downloading github.com/bgentry/speakeasy v0.1.0
+go: downloading github.com/fatih/color v1.7.0
+go: downloading github.com/mattn/go-isatty v0.0.5
+go: downloading github.com/posener/complete v1.2.1
+go: downloading github.com/vmihailenco/tagparser v0.1.1
+go: downloading google.golang.org/appengine v1.6.6
+go: downloading gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
+go: downloading golang.org/x/sys v0.0.0-20210324051608-47abb6519492
+go: downloading github.com/apparentlymart/go-textseg/v13 v13.0.0
+go: downloading github.com/kr/text v0.2.0
+go: downloading github.com/apparentlymart/go-cidr v1.1.0
+go: downloading github.com/google/uuid v1.1.2
+go: downloading github.com/googleapis/gax-go/v2 v2.0.5
+go: downloading github.com/Masterminds/goutils v1.1.0
+go: downloading github.com/Masterminds/semver v1.5.0
+go: downloading github.com/huandu/xstrings v1.3.2
+go: downloading github.com/imdario/mergo v0.3.12
+go: downloading github.com/mattn/go-colorable v0.1.1
+go: downloading github.com/sergi/go-diff v1.2.0
+go: downloading github.com/jstemmer/go-junit-report v0.9.1
+go: downloading golang.org/x/lint v0.0.0-20200302205851-738671d3881b
+go: downloading golang.org/x/tools v0.0.0-20201028111035-eafbe7b904eb
+go: downloading go.opencensus.io v0.22.4
+go: downloading github.com/jmespath/go-jmespath v0.4.0
+go: downloading gopkg.in/yaml.v2 v2.3.0
+go: downloading github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
+go: downloading github.com/google/martian/v3 v3.0.0
+go: downloading github.com/google/martian v2.1.0+incompatible
+go: downloading github.com/jmespath/go-jmespath/internal/testify v1.5.1
+go: downloading golang.org/x/mod v0.3.0
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls
+go.mod  go.sum  main.go  provider.go  resource_server.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls
+go.mod  go.sum  main.go  provider.go  resource_server.go
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ go build
+
+saravanans@skillsasap-vm33:~/terraform_custom_provider$
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls
+go.mod  main.go      resource_server.go
+go.sum  provider.go  terraform-provider-example
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls -lh
+total 26M
+-rw-rw-r-- 1 saravanans saravanans 3.7K Nov 24 11:05 go.mod
+-rw-rw-r-- 1 saravanans saravanans  60K Nov 24 11:05 go.sum
+-rw-rw-r-- 1 saravanans saravanans  264 Nov 24 11:05 main.go
+-rw-rw-r-- 1 saravanans saravanans  240 Nov 24 11:02 provider.go
+-rw-rw-r-- 1 saravanans saravanans 1.1K Nov 24 11:05 resource_server.go
+-rwxrwxr-x 1 saravanans saravanans  26M Nov 24 11:08 terraform-provider-example
+saravanans@skillsasap-vm33:~/terraform_custom_provider$
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ~/.terraform.d/
+-bash: /home/saravanans/.terraform.d/: Is a directory
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ ls ~/.terraform.d/
+checkpoint_cache  checkpoint_signature
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ mkdir -p ~/.terraform.d/plugins/terraform-example.com/exampleprovider/example/1.0.0/linux_amd64
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ tree  ~/.terraform.d/
+/home/saravanans/.terraform.d/
+├── checkpoint_cache
+├── checkpoint_signature
+└── plugins
+    └── terraform-example.com
+        └── exampleprovider
+            └── example
+                └── 1.0.0
+                    └── linux_amd64
+
+6 directories, 2 files
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ cp terraform-provider-example ~/.terraform.d/plugins/terraform-example.com/exampleprovider/example/1.0.0/linux_amd64/
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ tree  ~/.terraform.d/
+/home/saravanans/.terraform.d/
+├── checkpoint_cache
+├── checkpoint_signature
+└── plugins
+    └── terraform-example.com
+        └── exampleprovider
+            └── example
+                └── 1.0.0
+                    └── linux_amd64
+                        └── terraform-provider-example
+
+6 directories, 3 files
+saravanans@skillsasap-vm33:~/terraform_custom_provider$
+saravanans@skillsasap-vm33:~/terraform_custom_provider$ cd
+saravanans@skillsasap-vm33:~$
+saravanans@skillsasap-vm33:~$ mkdir tf_my_custom_provider
+saravanans@skillsasap-vm33:~$ cd tf_my_custom_provider
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ nano main.tf
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ cat main.tf
+resource "example_server" "demoinstance" {
+  uuid_count = "1"
+}
+
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ terraform  init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding latest version of hashicorp/example...
+╷
+│ Error: Failed to query available provider packages
+│
+│ Could not retrieve the list of available versions for provider
+│ hashicorp/example: provider registry registry.terraform.io does not have
+│ a provider named registry.terraform.io/hashicorp/example
+│
+│ All modules should specify their required_providers so that external
+│ consumers will get the correct providers when using a module. To see
+│ which modules are currently depending on hashicorp/example, run the
+│ following command:
+│     terraform providers
+╵
+
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ nano terraform.tf
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ cat terraform.tf
+terraform {
+  required_providers {
+    example = {
+      version = "~> 1.0.0"
+      source  = "terraform-example.com/exampleprovider/example"
+    }
+  }
+}
+
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ terraform apply --auto-approve
+╷
+│ Error: Inconsistent dependency lock file
+│
+│ The following dependency selections recorded in the lock file are
+│ inconsistent with the current configuration:
+│   - provider terraform-example.com/exampleprovider/example: required by this configuration but no version is selected
+│
+│ To make the initial dependency selections that will initialize the
+│ dependency lock file, run:
+│   terraform init
+╵
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding terraform-example.com/exampleprovider/example versions matching "~> 1.0.0"...
+- Installing terraform-example.com/exampleprovider/example v1.0.0...
+- Installed terraform-example.com/exampleprovider/example v1.0.0 (unauthenticated)
+
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+╷
+│ Warning: Incomplete lock file information for providers
+│
+│ Due to your customized provider installation methods, Terraform was
+│ forced to calculate lock file checksums locally for the following
+│ providers:
+│   - terraform-example.com/exampleprovider/example
+│
+│ The current .terraform.lock.hcl file only includes checksums for
+│ linux_amd64, so Terraform running on another platform will fail to
+│ install these providers.
+│
+│ To calculate additional checksums for another platform, run:
+│   terraform providers lock -platform=linux_amd64
+│ (where linux_amd64 is the platform to generate)
+╵
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ terraform apply --auto-approve
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # example_server.demoinstance will be created
+  + resource "example_server" "demoinstance" {
+      + id         = (known after apply)
+      + uuid_count = "1"
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+example_server.demoinstance: Creating...
+example_server.demoinstance: Creation complete after 0s [id=1]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$ terraform destroy
+example_server.demoinstance: Refreshing state... [id=1]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # example_server.demoinstance will be destroyed
+  - resource "example_server" "demoinstance" {
+      - id         = "1" -> null
+      - uuid_count = "1" -> null
+    }
+
+Plan: 0 to add, 0 to change, 1 to destroy.
+
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+example_server.demoinstance: Destroying... [id=1]
+example_server.demoinstance: Destruction complete after 0s
+
+Destroy complete! Resources: 1 destroyed.
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$
+saravanans@skillsasap-vm33:~/tf_my_custom_provider$
+

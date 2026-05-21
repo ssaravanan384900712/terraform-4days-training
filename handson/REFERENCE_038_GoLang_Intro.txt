@@ -1,0 +1,142 @@
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ go
+
+Command 'go' not found, but can be installed with:
+
+sudo snap install go         # version 1.21.1, or
+sudo apt  install golang-go  # version 2:1.13~1ubuntu2
+sudo apt  install gccgo-go   # version 2:1.13~1ubuntu2
+
+See 'snap info go' for additional versions.
+
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ go version
+
+Command 'go' not found, but can be installed with:
+
+sudo snap install go         # version 1.21.1, or
+sudo apt  install golang-go  # version 2:1.13~1ubuntu2
+sudo apt  install gccgo-go   # version 2:1.13~1ubuntu2
+
+See 'snap info go' for additional versions.
+
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ wget https://go.dev/dl/go1.21.1.linux-amd64.tar.gz
+--2023-09-15 09:58:58--  https://go.dev/dl/go1.21.1.linux-amd64.tar.gz
+Resolving go.dev (go.dev)... 216.239.32.21, 216.239.36.21, 216.239.38.21, ...
+Connecting to go.dev (go.dev)|216.239.32.21|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz [following]
+--2023-09-15 09:58:59--  https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz
+Resolving dl.google.com (dl.google.com)... 172.253.122.136, 172.253.122.91, 172.253.122.190, ...
+Connecting to dl.google.com (dl.google.com)|172.253.122.136|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 66633012 (64M) [application/x-gzip]
+Saving to: ‘go1.21.1.linux-amd64.tar.gz’
+
+go1.21.1.linux-amd64 100%[=====================>]  63.55M   376MB/s    in 0.2s
+
+2023-09-15 09:58:59 (376 MB/s) - ‘go1.21.1.linux-amd64.tar.gz’ saved [66633012/66633012]
+
+saravanans@skillsasap-vm:~$ sudo rm -rf /usr/local/go
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ tar -zxf go1.21.1.linux-amd64.tar.gz
+saravanans@skillsasap-vm:~$ ls
+admatic_terraform_workspace  snap                 tf_local_demo
+day4.tgz                     tf_aks_cluster       tf_local_state_demo
+deploymet_robochefweb.yaml   tf_azure_network     tf_meta_count
+go                           tf_azure_rg_demo     tf_new_vm
+go1.21.1.linux-amd64.tar.gz  tf_azure_storage     tf_output_demo
+gtest                        tf_docker_demo       tf_random_demo
+gw                           tf_file_provisioner  tf_variables_intro
+gw2                          tf_k8s_provider      webpod.yaml
+myrc1.yaml                   tf_lc                webpod2.yaml
+redisPod.yaml                tf_lc2
+saravanans@skillsasap-vm:~$ sudo mv go /usr/local/
+mv: cannot move 'go' to '/usr/local/go': Permission denied
+saravanans@skillsasap-vm:~$ sudo !!
+sudo mv go /usr/local/
+saravanans@skillsasap-vm:~$ sudo ls /usr/local/
+bin  etc  games  go  include  lib  man	sbin  share  src
+saravanans@skillsasap-vm:~$ sudo ls /usr/local/go/
+CONTRIBUTING.md  PATENTS    SECURITY.md  api  codereview.cfg  go.env  misc  src
+LICENSE		 README.md  VERSION	 bin  doc	      lib     pkg   test
+saravanans@skillsasap-vm:~$ sudo ls /usr/local/go/bin/
+go  gofmt
+saravanans@skillsasap-vm:~$ /usr/local/go/bin/go version
+go version go1.21.1 linux/amd64
+
+
+
+saravanans@skillsasap-vm:~$
+
+
+saravanans@skillsasap-vm:~$ echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
+
+
+saravanans@skillsasap-vm:~$ source ~/.bashrc
+
+
+saravanans@skillsasap-vm:~$ sudo ls /usr/local/go/bin/
+go  gofmt
+saravanans@skillsasap-vm:~$ /usr/local/go/bin/go version
+go version go1.21.1 linux/amd64
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ vi ~/.bashrc
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ source ~/.bashrc
+saravanans@skillsasap-vm:~$ go version
+go version go1.21.1 linux/amd64
+saravanans@skillsasap-vm:~$
+saravanans@skillsasap-vm:~$ mkdir hello
+saravanans@skillsasap-vm:~$ cd hello
+saravanans@skillsasap-vm:~/hello$ ls
+saravanans@skillsasap-vm:~/hello$ go mod init hello
+go: creating new go.mod: module hello
+saravanans@skillsasap-vm:~/hello$ ls
+go.mod
+saravanans@skillsasap-vm:~/hello$ vi main.go
+saravanans@skillsasap-vm:~/hello$ cat main.go
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello Folks")
+}
+
+saravanans@skillsasap-vm:~/hello$ go fmt
+main.go
+saravanans@skillsasap-vm:~/hello$ cat main.go
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello Folks")
+}
+saravanans@skillsasap-vm:~/hello$ ls
+go.mod  main.go
+saravanans@skillsasap-vm:~/hello$ go run main.go
+Hello Folks
+saravanans@skillsasap-vm:~/hello$ ls
+go.mod  main.go
+saravanans@skillsasap-vm:~/hello$ go build
+saravanans@skillsasap-vm:~/hello$ ls
+go.mod  hello  main.go
+saravanans@skillsasap-vm:~/hello$ ls
+go.mod  hello  main.go
+saravanans@skillsasap-vm:~/hello$ ls -lh
+total 1.8M
+-rw-rw-r-- 1 saravanans saravanans   24 Sep 15 10:04 go.mod
+-rwxrwxr-x 1 saravanans saravanans 1.8M Sep 15 10:06 hello
+-rw-rw-r-- 1 saravanans saravanans   72 Sep 15 10:06 main.go
+saravanans@skillsasap-vm:~/hello$ ./hello
+Hello Folks
+saravanans@skillsasap-vm:~/hello$
+
+

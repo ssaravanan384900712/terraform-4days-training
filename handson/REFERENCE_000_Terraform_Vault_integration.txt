@@ -1,0 +1,262 @@
+### install Hashicorp Vault 
+
+
+ {   
+ sudo apt update;   
+ sudo apt install wget zip unzip jq tree -y; 
+ 
+ }
+
+
+{   
+
+wget -nc https://www.dropbox.com/s/av9rl5r0emypuc2/vault_1.3.0_linux_amd64.zip;   
+unzip vault_1.3.0_linux_amd64.zip;
+
+sudo mv vault /usr/local/bin; 
+}
+    
+### start vault server 
+
+
+root@myvm24:/etc/apt/sources.list.d# vault server -dev -dev-root-token-id="environment"
+==> Vault server configuration:
+
+             Api Address: http://127.0.0.1:8200
+                     Cgo: disabled
+         Cluster Address: https://127.0.0.1:8201
+              Listener 1: tcp (addr: "127.0.0.1:8200", cluster address: "127.0.0.1:8201", max_request_duration: "1m30s", max_request_size: "33554432", tls: "disabled")
+               Log Level: info
+                   Mlock: supported: true, enabled: false
+           Recovery Mode: false
+                 Storage: inmem
+                 Version: Vault v1.3.0
+
+WARNING! dev mode is enabled! In this mode, Vault runs entirely in-memory
+and starts unsealed with a single unseal key. The root token is already
+authenticated to the CLI, so you can immediately begin using Vault.
+
+You may need to set the following environment variable:
+
+    $ export VAULT_ADDR='http://127.0.0.1:8200'
+
+The unseal key and root token are displayed below in case you want to
+seal/unseal the Vault or re-authenticate.
+
+Unseal Key: 3Ia6ms11bn6KwhFKoFxxW2n2CwH4hDizp/8PtVNmHJo=
+Root Token: environment
+
+Development mode should NOT be used in production installations!
+
+==> Vault server started! Log data will stream in below:
+
+2023-08-31T21:41:37.608Z [INFO]  proxy environment: http_proxy= https_proxy= no_proxy=
+2023-08-31T21:41:37.608Z [WARN]  no `api_addr` value specified in config or in VAULT_API_ADDR; falling back to detection if possible, but this value should be manually set
+2023-08-31T21:41:37.608Z [ERROR] core: no seal config found, can't determine if legacy or new-style shamir
+2023-08-31T21:41:37.608Z [ERROR] core: no seal config found, can't determine if legacy or new-style shamir
+2023-08-31T21:41:37.608Z [INFO]  core: security barrier not initialized
+2023-08-31T21:41:37.608Z [INFO]  core: security barrier initialized: stored=1 shares=1 threshold=1
+2023-08-31T21:41:37.608Z [INFO]  core: post-unseal setup starting
+2023-08-31T21:41:37.615Z [INFO]  core: loaded wrapping token key
+
+
+
+
+#### open another terminal 
+
+
+
+saravanans@myvm24:~$ mkdir tf_vault_secret
+saravanans@myvm24:~$ cd tf_vault_secret
+saravanans@myvm24:~/tf_vault_secret$
+saravanans@myvm24:~/tf_vault_secret$ cat main.tf
+data "vault_generic_secret" "aws_creds" {
+    path = "secret/aws"
+}
+
+output "vault_secrets_demo" {
+    value = data.vault_generic_secret.aws_creds.data["region"]
+}
+
+
+saravanans@myvm24:~/tf_vault_secret$ go modin ^C
+saravanans@myvm24:~/tf_vault_secret$ terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding latest version of hashicorp/vault...
+- Installing hashicorp/vault v3.20.0...
+- Installed hashicorp/vault v3.20.0 (signed by HashiCorp)
+
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+saravanans@myvm24:~/tf_vault_secret$
+saravanans@myvm24:~/tf_vault_secret$ terraform apply --auto-approve
+provider.vault.address
+  URL of the root of the target Vault server.
+
+  Enter a value: http://127.0.0.1:8200/
+
+╷
+│ Error: Invalid provider configuration
+│
+│ Provider "registry.terraform.io/hashicorp/vault" requires explicit configuration. Add a provider block to the root
+│ module and configure the provider's required arguments as described in the provider documentation.
+│
+╵
+╷
+│ Error: no vault token set on Client
+│
+│   with provider["registry.terraform.io/hashicorp/vault"],
+│   on <input-prompt> line 1:
+│   (source code not available)
+│
+╵
+saravanans@myvm24:~/tf_vault_secret$ vi main.tf
+saravanans@myvm24:~/tf_vault_secret$
+saravanans@myvm24:~/tf_vault_secret$ terraform apply --auto-approve
+data.vault_generic_secret.aws_creds: Reading...
+╷
+│ Error: no secret found at "secret/aws"
+│
+│   with data.vault_generic_secret.aws_creds,
+│   on main.tf line 1, in data "vault_generic_secret" "aws_creds":
+│    1: data "vault_generic_secret" "aws_creds" {
+│
+╵
+saravanans@myvm24:~/tf_vault_secret$ cat main.tf
+data "vault_generic_secret" "aws_creds" {
+    path = "secret/aws"
+}
+
+output "vault_secrets_demo" {
+    value = data.vault_generic_secret.aws_creds.data["region"]
+}
+
+provider "vault" {
+        address = "http://127.0.0.1:8200/"
+        token = "environment"
+}
+
+
+saravanans@myvm24:~/tf_vault_secret$ vault kv put secret/aws region=india
+Get https://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/aws: http: server gave HTTP response to HTTPS client
+saravanans@myvm24:~/tf_vault_secret$ export VAULT_ADDR="http://127.0.0.1:8200"
+saravanans@myvm24:~/tf_vault_secret$ export VAULT_DEV_ROOT_TOKEN_ID="environment"
+saravanans@myvm24:~/tf_vault_secret$ vault kv put secret/aws region=india
+Error making API request.
+
+
+
+
+saravanans@myvm24:~/tf_vault_secret$ vault status
+Key             Value
+---             -----
+Seal Type       shamir
+Initialized     true
+Sealed          false
+Total Shares    1
+Threshold       1
+Version         1.3.0
+Cluster Name    vault-cluster-d28ca94d
+Cluster ID      e6a5a17f-5dc8-6648-e63b-254d57912bc8
+HA Enabled      false
+saravanans@myvm24:~/tf_vault_secret$ export VAULT_TOKEN="environment"
+saravanans@myvm24:~/tf_vault_secret$ vault kv put secret/aws region=india
+Key              Value
+---              -----
+created_time     2023-08-31T21:57:08.765381099Z
+deletion_time    n/a
+destroyed        false
+version          1
+saravanans@myvm24:~/tf_vault_secret$ terraform apply --auto-approve
+data.vault_generic_secret.aws_creds: Reading...
+data.vault_generic_secret.aws_creds: Read complete after 0s [id=secret/aws]
+╷
+│ Error: Output refers to sensitive values
+│
+│   on main.tf line 5:
+│    5: output "vault_secrets_demo" {
+│
+│ To reduce the risk of accidentally exporting sensitive data that was intended to be only internal, Terraform
+│ requires that any root module output containing sensitive data be explicitly marked as sensitive, to confirm your
+│ intent.
+│
+│ If you do intend to export this data, annotate the output value as sensitive by adding the following argument:
+│     sensitive = true
+╵
+saravanans@myvm24:~/tf_vault_secret$ vi main.tf
+saravanans@myvm24:~/tf_vault_secret$ vi main.tf
+saravanans@myvm24:~/tf_vault_secret$ terraform apply --auto-approve
+data.vault_generic_secret.aws_creds: Reading...
+data.vault_generic_secret.aws_creds: Read complete after 0s [id=secret/aws]
+
+Changes to Outputs:
+  + vault_secrets_demo = (sensitive value)
+
+You can apply this plan to save these new output values to the Terraform state, without changing any real
+infrastructure.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+vault_secrets_demo = <sensitive>
+saravanans@myvm24:~/tf_vault_secret$ vi terraform.tfstate
+saravanans@myvm24:~/tf_vault_secret$ vault kv put secret/aws region=india.chennai
+Key              Value
+---              -----
+created_time     2023-08-31T21:58:42.487465973Z
+deletion_time    n/a
+destroyed        false
+version          2
+saravanans@myvm24:~/tf_vault_secret$ terraform apply --auto-approve
+data.vault_generic_secret.aws_creds: Reading...
+data.vault_generic_secret.aws_creds: Read complete after 0s [id=secret/aws]
+
+Changes to Outputs:
+  ~ vault_secrets_demo = (sensitive value)
+
+You can apply this plan to save these new output values to the Terraform state, without changing any real
+infrastructure.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+vault_secrets_demo = <sensitive>
+saravanans@myvm24:~/tf_vault_secret$ vi terraform.tfstate
+saravanans@myvm24:~/tf_vault_secret$
+
+saravanans@myvm24:~/tf_vault_secret$ cat main.tf
+data "vault_generic_secret" "mysecret" {
+    path = "secret/mypassword"
+}
+
+output "vault_secrets_demo" {
+    sensitive = true
+    value = data.vault_generic_secret.mysecret.data["password"]
+}
+
+provider "vault" {
+        address = "http://127.0.0.1:8200/"
+        token = "environment"
+}
+
+
+saravanans@myvm24:~/tf_vault_secret$
+
+

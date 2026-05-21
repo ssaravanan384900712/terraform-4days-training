@@ -1,0 +1,1738 @@
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ ls
+data.txt             main.tf     robochef_stack.sh  terraform.tfstate.backup
+file_provisioner.tf  outputs.tf  terraform.tfstate
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ ls
+data.txt             main.tf     robochef_stack.sh  terraform.tfstate.backup
+file_provisioner.tf  outputs.tf  terraform.tfstate
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano remote_exec.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat remote_exec.tf
+resource "null_resource" "remote-provisioner" {
+
+  provisioner "remote-exec" {
+    inline = [
+		"echo Remote Provisioner did this > /tmp/remoteexec.txt",
+		"sh /tmp/robochef_stack.sh",
+	      ]
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+
+  }
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+╷
+│ Error: Unclosed configuration block
+│
+│   on remote_exec.tf line 1, in resource "null_resource" "remote-provisioner":
+│    1: resource "null_resource" "remote-provisioner" {
+│
+│ There is no closing brace for this block before the end of the file. This may be caused by
+│ incorrect brace nesting elsewhere in this file.
+╵
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano r
+remote_exec.tf     robochef_stack.sh
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano remote_exec.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat remote_exec.tf
+resource "null_resource" "remote-provisioner" {
+
+  provisioner "remote-exec" {
+    inline = [
+		"echo Remote Provisioner did this > /tmp/remoteexec.txt",
+		"sh /tmp/robochef_stack.sh",
+	      ]
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+
+  }
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+module.azure_linuxvm.random_string.vm_prefix: Refreshing state... [id=2qxt6I]
+module.azure_linuxvm.random_string.sshpassword: Refreshing state... [id={ikR&!sjk[MEgM3AP490]
+module.azure_linuxvm.random_string.rgprefix: Refreshing state... [id=KZv3puq3y]
+module.azure_linuxvm.azurerm_resource_group.myterraformgroup: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo]
+module.azure_linuxvm.azurerm_public_ip.myterraformpublicip: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+module.azure_linuxvm.azurerm_virtual_network.myterraformnetwork: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet]
+module.azure_linuxvm.azurerm_network_security_group.myterraformnsg: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+null_resource.copy_file: Refreshing state... [id=7576327422452695465]
+null_resource.copy_script: Refreshing state... [id=6395145311560298516]
+module.azure_linuxvm.azurerm_subnet.myterraformsubnet: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+module.azure_linuxvm.azurerm_network_interface.myterraformnic: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkInterfaces/myNIC]
+module.azure_linuxvm.azurerm_linux_virtual_machine.myterraformvm: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Compute/virtualMachines/2qxt6ImyAdmaticVM]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are
+indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # null_resource.remote-provisioner will be created
+  + resource "null_resource" "remote-provisioner" {
+      + id = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+null_resource.remote-provisioner: Creating...
+null_resource.remote-provisioner: Provisioning with 'remote-exec'...
+null_resource.remote-provisioner (remote-exec): Connecting to remote host via SSH...
+null_resource.remote-provisioner (remote-exec):   Host: 20.228.242.200
+null_resource.remote-provisioner (remote-exec):   User: saravanans
+null_resource.remote-provisioner (remote-exec):   Password: true
+null_resource.remote-provisioner (remote-exec):   Private key: false
+null_resource.remote-provisioner (remote-exec):   Certificate: false
+null_resource.remote-provisioner (remote-exec):   SSH Agent: false
+null_resource.remote-provisioner (remote-exec):   Checking Host Key: false
+null_resource.remote-provisioner (remote-exec):   Target Platform: unix
+null_resource.remote-provisioner (remote-exec): Connected!
+null_resource.remote-provisioner (remote-exec): beginning the execution of robochef stack
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:1 http://azure.archive.ubuntu.com/ubuntu bionic InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Get:2 http://azure.archive.ubuntu.com/ubuntu bionic-updates InRelease [88.7 kB]
+null_resource.remote-provisioner (remote-exec): Get:3 http://azure.archive.ubuntu.com/ubuntu bionic-backports InRelease [83.3 kB]
+null_resource.remote-provisioner (remote-exec): Get:4 http://azure.archive.ubuntu.com/ubuntu bionic-security InRelease [88.7 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [1 InRelease gpgv 242 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [2 InRelease gpgv 88.7 kB] [Waiting
+null_resource.remote-provisioner (remote-exec): Get:5 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 Packages [8570 kB]
+null_resource.remote-provisioner (remote-exec): 0% [2 InRelease gpgv 88.7 kB] [5 Packag
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages 6578 kB/8570 kB 77%]
+null_resource.remote-provisioner (remote-exec): 0% [3 InRelease gpgv 83.3 kB] [5 Packag
+null_resource.remote-provisioner (remote-exec): 0% [3 InRelease gpgv 83.3 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:6 http://azure.archive.ubuntu.com/ubuntu bionic/universe Translation-en [4941 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:7 http://azure.archive.ubuntu.com/ubuntu bionic/multiverse amd64 Packages [151 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:8 http://azure.archive.ubuntu.com/ubuntu bionic/multiverse Translation-en [108 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:9 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 Packages [3045 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:10 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main Translation-en [554 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:11 http://azure.archive.ubuntu.com/ubuntu bionic-updates/restricted amd64 Packages [1347 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:12 http://azure.archive.ubuntu.com/ubuntu bionic-updates/restricted Translation-en [187 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:13 http://azure.archive.ubuntu.com/ubuntu bionic-updates/universe amd64 Packages [1915 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:14 http://azure.archive.ubuntu.com/ubuntu bionic-updates/universe Translation-en [421 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:15 http://azure.archive.ubuntu.com/ubuntu bionic-updates/multiverse amd64 Packages [25.6 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): Get:16 http://azure.archive.ubuntu.com/ubuntu bionic-updates/multiverse Translation-en [6088 B]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [3 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [4 InRelease
+null_resource.remote-provisioner (remote-exec): Get:17 http://azure.archive.ubuntu.com/ubuntu bionic-backports/main amd64 Packages [53.3 kB]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [4 InRelease
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [4 InRelease
+null_resource.remote-provisioner (remote-exec): Get:18 http://azure.archive.ubuntu.com/ubuntu bionic-backports/main Translation-en [14.6 kB]
+null_resource.remote-provisioner (remote-exec): Get:19 http://azure.archive.ubuntu.com/ubuntu bionic-backports/universe amd64 Packages [18.2 kB]
+null_resource.remote-provisioner (remote-exec): Get:20 http://azure.archive.ubuntu.com/ubuntu bionic-backports/universe Translation-en [8668 B]
+null_resource.remote-provisioner (remote-exec): 0% [5 Packages store 0 B] [4 InRelease
+null_resource.remote-provisioner (remote-exec): 76% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:21 http://azure.archive.ubuntu.com/ubuntu bionic-security/main amd64 Packages [2717 kB]
+null_resource.remote-provisioner (remote-exec): 78% [5 Packages store 0 B] [21 Packages
+null_resource.remote-provisioner (remote-exec): 84% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:22 http://azure.archive.ubuntu.com/ubuntu bionic-security/main Translation-en [467 kB]
+null_resource.remote-provisioner (remote-exec): 84% [5 Packages store 0 B] [22 Translat
+null_resource.remote-provisioner (remote-exec): 85% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:23 http://azure.archive.ubuntu.com/ubuntu bionic-security/restricted amd64 Packages [1317 kB]
+null_resource.remote-provisioner (remote-exec): 85% [5 Packages store 0 B] [23 Packages
+null_resource.remote-provisioner (remote-exec): 89% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:24 http://azure.archive.ubuntu.com/ubuntu bionic-security/restricted Translation-en [182 kB]
+null_resource.remote-provisioner (remote-exec): 89% [5 Packages store 0 B] [24 Translat
+null_resource.remote-provisioner (remote-exec): 90% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:25 http://azure.archive.ubuntu.com/ubuntu bionic-security/universe amd64 Packages [1303 kB]
+null_resource.remote-provisioner (remote-exec): 90% [5 Packages store 0 B] [25 Packages
+null_resource.remote-provisioner (remote-exec): 93% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:26 http://azure.archive.ubuntu.com/ubuntu bionic-security/universe Translation-en [308 kB]
+null_resource.remote-provisioner (remote-exec): 93% [5 Packages store 0 B] [26 Translat
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:27 http://azure.archive.ubuntu.com/ubuntu bionic-security/multiverse amd64 Packages [19.8 kB]
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B] [27 Packages
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): Get:28 http://azure.archive.ubuntu.com/ubuntu bionic-security/multiverse Translation-en [3928 B]
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B] [28 Translat
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 94% [5 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [Working]
+null_resource.remote-provisioner (remote-exec): 95% [6 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [6 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [Working]
+null_resource.remote-provisioner (remote-exec): 95% [7 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [Working]
+null_resource.remote-provisioner (remote-exec): 95% [8 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [Working]
+null_resource.remote-provisioner (remote-exec): 95% [9 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [9 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 95% [Working]
+null_resource.remote-provisioner (remote-exec): 95% [10 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 96% [Working]
+null_resource.remote-provisioner (remote-exec): 96% [11 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 96% [Working]
+null_resource.remote-provisioner (remote-exec): 96% [12 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 96% [Working]
+null_resource.remote-provisioner (remote-exec): 96% [13 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 96% [Working]
+null_resource.remote-provisioner (remote-exec): 96% [14 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 97% [Working]
+null_resource.remote-provisioner (remote-exec): 97% [15 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 97% [Working]
+null_resource.remote-provisioner (remote-exec): 97% [16 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 97% [Working]
+null_resource.remote-provisioner (remote-exec): 97% [17 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 97% [Working]
+null_resource.remote-provisioner (remote-exec): 97% [18 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 98% [Working]
+null_resource.remote-provisioner (remote-exec): 98% [19 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 98% [Working]
+null_resource.remote-provisioner (remote-exec): 98% [20 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 98% [Working]
+null_resource.remote-provisioner (remote-exec): 98% [21 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 98% [21 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 98% [Working]
+null_resource.remote-provisioner (remote-exec): 98% [22 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 99% [Working]
+null_resource.remote-provisioner (remote-exec): 99% [23 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 99% [Working]
+null_resource.remote-provisioner (remote-exec): 99% [24 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 99% [Working]
+null_resource.remote-provisioner (remote-exec): 99% [25 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 99% [Working]
+null_resource.remote-provisioner (remote-exec): 99% [26 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 100% [Working]
+null_resource.remote-provisioner (remote-exec): 100% [27 Packages store 0 B]
+null_resource.remote-provisioner (remote-exec): 100% [Working]
+null_resource.remote-provisioner (remote-exec): 100% [28 Translation-en store 0 B]
+null_resource.remote-provisioner (remote-exec): 100% [Working]
+null_resource.remote-provisioner (remote-exec): Fetched 27.9 MB in 6s (4715 kB/s)
+null_resource.remote-provisioner: Still creating... [10s elapsed]
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 42%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): software-properties-common is already the newest version (0.96.24.32.22).
+null_resource.remote-provisioner (remote-exec): software-properties-common set to manually installed.
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): git is already the newest version (1:2.17.1-1ubuntu0.18).
+null_resource.remote-provisioner (remote-exec): git set to manually installed.
+null_resource.remote-provisioner (remote-exec): The following additional packages will be installed:
+null_resource.remote-provisioner (remote-exec):   libc-dev-bin libc6-dev libexpat1-dev
+null_resource.remote-provisioner (remote-exec):   libpython-dev libpython2.7-dev
+null_resource.remote-provisioner (remote-exec):   linux-libc-dev manpages-dev
+null_resource.remote-provisioner (remote-exec):   python-pkg-resources python2.7-dev
+null_resource.remote-provisioner (remote-exec): Suggested packages:
+null_resource.remote-provisioner (remote-exec):   glibc-doc libssl-doc
+null_resource.remote-provisioner (remote-exec):   python-setuptools-doc
+null_resource.remote-provisioner (remote-exec): The following NEW packages will be installed:
+null_resource.remote-provisioner (remote-exec):   libc-dev-bin libc6-dev libexpat1-dev
+null_resource.remote-provisioner (remote-exec):   libffi-dev libpython-dev
+null_resource.remote-provisioner (remote-exec):   libpython2.7-dev libssl-dev
+null_resource.remote-provisioner (remote-exec):   linux-libc-dev manpages-dev
+null_resource.remote-provisioner (remote-exec):   python-dev python-pkg-resources
+null_resource.remote-provisioner (remote-exec):   python-setuptools python2.7-dev
+null_resource.remote-provisioner (remote-exec):   sshpass tree
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 15 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): Need to get 36.8 MB of archives.
+null_resource.remote-provisioner (remote-exec): After this operation, 82.8 MB of additional disk space will be used.
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Get:1 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 libc-dev-bin amd64 2.27-3ubuntu1.6 [71.9 kB]
+null_resource.remote-provisioner (remote-exec): 0% [1 libc-dev-bin 0 B/71.9 kB 0%]
+null_resource.remote-provisioner (remote-exec): 1% [Working]
+null_resource.remote-provisioner (remote-exec): Get:2 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 linux-libc-dev amd64 4.15.0-213.224 [983 kB]
+null_resource.remote-provisioner (remote-exec): 2% [2 linux-libc-dev 29.6 kB/983 kB 3%]
+null_resource.remote-provisioner (remote-exec): 5% [Working]
+null_resource.remote-provisioner (remote-exec): Get:3 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 libc6-dev amd64 2.27-3ubuntu1.6 [2587 kB]
+null_resource.remote-provisioner (remote-exec): 5% [3 libc6-dev 0 B/2587 kB 0%]
+null_resource.remote-provisioner (remote-exec): Get:4 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 libexpat1-dev amd64 2.2.5-3ubuntu0.9 [124 kB]
+null_resource.remote-provisioner (remote-exec): 12% [4 libexpat1-dev 65.5 kB/124 kB 53%
+null_resource.remote-provisioner (remote-exec): 14% [Working]
+null_resource.remote-provisioner (remote-exec): Get:5 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 libpython2.7-dev amd64 2.7.17-1~18.04ubuntu1.11 [28.3 MB]
+null_resource.remote-provisioner (remote-exec): 14% [5 libpython2.7-dev 33.2 kB/28.3 MB
+null_resource.remote-provisioner (remote-exec): 75% [5 libpython2.7-dev 28.3 MB/28.3 MB
+null_resource.remote-provisioner (remote-exec): 76% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:6 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 libpython-dev amd64 2.7.15~rc1-1 [7684 B]
+null_resource.remote-provisioner (remote-exec): 78% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:7 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 libssl-dev amd64 1.1.1-1ubuntu2.1~18.04.23 [1568 kB]
+null_resource.remote-provisioner (remote-exec): 78% [7 libssl-dev 65.5 kB/1568 kB 4%]
+null_resource.remote-provisioner (remote-exec): 82% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:8 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 manpages-dev all 4.15-1 [2217 kB]
+null_resource.remote-provisioner (remote-exec): 83% [8 manpages-dev 65.5 kB/2217 kB 3%]
+null_resource.remote-provisioner (remote-exec): 89% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:9 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python2.7-dev amd64 2.7.17-1~18.04ubuntu1.11 [285 kB]
+null_resource.remote-provisioner (remote-exec): 89% [9 python2.7-dev 20.9 kB/285 kB 7%]
+null_resource.remote-provisioner (remote-exec): 91% [Working]
+null_resource.remote-provisioner (remote-exec): Get:10 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-dev amd64 2.7.15~rc1-1 [1256 B]
+null_resource.remote-provisioner (remote-exec): Get:11 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-pkg-resources all 39.0.1-2ubuntu0.1 [128 kB]
+null_resource.remote-provisioner (remote-exec): 92% [11 python-pkg-resources 61.8 kB/12
+null_resource.remote-provisioner (remote-exec): 93% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:12 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-setuptools all 39.0.1-2ubuntu0.1 [329 kB]
+null_resource.remote-provisioner (remote-exec): 94% [12 python-setuptools 20.5 kB/329 k
+null_resource.remote-provisioner (remote-exec): 96% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:13 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 tree amd64 1.7.0-5 [40.7 kB]
+null_resource.remote-provisioner (remote-exec): 96% [13 tree 40.7 kB/40.7 kB 100%]
+null_resource.remote-provisioner (remote-exec): 97% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:14 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 libffi-dev amd64 3.2.1-8 [156 kB]
+null_resource.remote-provisioner (remote-exec): 97% [14 libffi-dev 21.2 kB/156 kB 14%]
+null_resource.remote-provisioner (remote-exec): 99% [Working]
+null_resource.remote-provisioner (remote-exec): Get:15 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 sshpass amd64 1.06-1 [10.5 kB]
+
+null_resource.remote-provisioner (remote-exec): Setting up libpython-dev:amd64 (2.7.15~rc1-1) ...
+null_resource.remote-provisioner (remote-exec): Setting up python-dev (2.7.15~rc1-1) ...
+null_resource.remote-provisioner (remote-exec): Processing triggers for install-info (6.5.0.dfsg.1-2) ...
+null_resource.remote-provisioner (remote-exec): Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
+null_resource.remote-provisioner: Still creating... [30s elapsed]
+null_resource.remote-provisioner: Still creating... [40s elapsed]
+null_resource.remote-provisioner: Still creating... [50s elapsed]
+null_resource.remote-provisioner: Still creating... [1m0s elapsed]
+null_resource.remote-provisioner: Creation complete after 1m6s [id=6274285638585079166]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ssh_password = "{ikR&!sjk[MEgM3AP490"
+sshuser = "saravanans"
+vm_public_ip = "20.228.242.200"
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+
+
+
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+module.azure_linuxvm.random_string.vm_prefix: Refreshing state... [id=2qxt6I]
+module.azure_linuxvm.random_string.sshpassword: Refreshing state... [id={ikR&!sjk[MEgM3AP490]
+module.azure_linuxvm.random_string.rgprefix: Refreshing state... [id=KZv3puq3y]
+module.azure_linuxvm.azurerm_resource_group.myterraformgroup: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo]
+module.azure_linuxvm.azurerm_public_ip.myterraformpublicip: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+module.azure_linuxvm.azurerm_network_security_group.myterraformnsg: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+module.azure_linuxvm.azurerm_virtual_network.myterraformnetwork: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet]
+null_resource.remote-provisioner: Refreshing state... [id=6274285638585079166]
+null_resource.copy_file: Refreshing state... [id=7576327422452695465]
+null_resource.copy_script: Refreshing state... [id=6395145311560298516]
+module.azure_linuxvm.azurerm_subnet.myterraformsubnet: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+module.azure_linuxvm.azurerm_network_interface.myterraformnic: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkInterfaces/myNIC]
+module.azure_linuxvm.azurerm_linux_virtual_machine.myterraformvm: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Compute/virtualMachines/2qxt6ImyAdmaticVM]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences,
+so no changes are needed.
+
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ssh_password = "{ikR&!sjk[MEgM3AP490"
+sshuser = "saravanans"
+vm_public_ip = "20.228.242.200"
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ la
+.terraform           data.txt             main.tf     remote_exec.tf     terraform.tfstate
+.terraform.lock.hcl  file_provisioner.tf  outputs.tf  robochef_stack.sh  terraform.tfstate.backup
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ ls
+data.txt             main.tf     remote_exec.tf     terraform.tfstate
+file_provisioner.tf  outputs.tf  robochef_stack.sh  terraform.tfstate.backup
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano robochef_stack.sh
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat robochef_stack.sh
+echo "beginning the execution of robochef stack"
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo apt-get install -y python-setuptools python-dev libffi-dev libssl-dev git sshpass tree
+sudo easy_install pip
+sudo apt install ansible -y
+
+ansible --version
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ ls
+data.txt             main.tf     remote_exec.tf     terraform.tfstate
+file_provisioner.tf  outputs.tf  robochef_stack.sh  terraform.tfstate.backup
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+module.azure_linuxvm.random_string.vm_prefix: Refreshing state... [id=2qxt6I]
+module.azure_linuxvm.random_string.rgprefix: Refreshing state... [id=KZv3puq3y]
+module.azure_linuxvm.random_string.sshpassword: Refreshing state... [id={ikR&!sjk[MEgM3AP490]
+module.azure_linuxvm.azurerm_resource_group.myterraformgroup: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo]
+module.azure_linuxvm.azurerm_public_ip.myterraformpublicip: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+module.azure_linuxvm.azurerm_virtual_network.myterraformnetwork: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet]
+module.azure_linuxvm.azurerm_network_security_group.myterraformnsg: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+null_resource.copy_file: Refreshing state... [id=7576327422452695465]
+null_resource.remote-provisioner: Refreshing state... [id=6274285638585079166]
+null_resource.copy_script: Refreshing state... [id=6395145311560298516]
+module.azure_linuxvm.azurerm_subnet.myterraformsubnet: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+module.azure_linuxvm.azurerm_network_interface.myterraformnic: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkInterfaces/myNIC]
+module.azure_linuxvm.azurerm_linux_virtual_machine.myterraformvm: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Compute/virtualMachines/2qxt6ImyAdmaticVM]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences,
+so no changes are needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ssh_password = "{ikR&!sjk[MEgM3AP490"
+sshuser = "saravanans"
+vm_public_ip = "20.228.242.200"
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano remote_exec.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat remote_exec.tf
+resource "null_resource" "remote-provisioner" {
+  triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+		"echo Remote Provisioner did this > /tmp/remoteexec.txt",
+		"sh /tmp/robochef_stack.sh",
+	      ]
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+
+  }
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano file_provisioner.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat file_provisioner.tf
+resource "null_resource" "copy_file" {
+    triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "file" {
+    source = "data.txt"
+    destination = "/tmp/mydata-new.txt"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+
+resource "null_resource" "copy_script" {
+    triggers = {
+	trigger = file("robochef_stack.sh")
+  }
+  provisioner "file" {
+    source = "robochef_stack.sh"
+    destination = "/tmp/robochef_stack.sh"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano r
+remote_exec.tf     robochef_stack.sh
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano remote_exec.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat remote_exec.tf
+resource "null_resource" "remote-provisioner" {
+  triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+		"echo Remote Provisioner did this > /tmp/remoteexec.txt",
+		"sh /tmp/robochef_stack.sh",
+	      ]
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+  depends_on = [null_resource.copy_script]
+}
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+module.azure_linuxvm.random_string.rgprefix: Refreshing state... [id=KZv3puq3y]
+module.azure_linuxvm.random_string.sshpassword: Refreshing state... [id={ikR&!sjk[MEgM3AP490]
+module.azure_linuxvm.random_string.vm_prefix: Refreshing state... [id=2qxt6I]
+module.azure_linuxvm.azurerm_resource_group.myterraformgroup: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo]
+module.azure_linuxvm.azurerm_public_ip.myterraformpublicip: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+module.azure_linuxvm.azurerm_virtual_network.myterraformnetwork: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet]
+module.azure_linuxvm.azurerm_network_security_group.myterraformnsg: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+module.azure_linuxvm.azurerm_subnet.myterraformsubnet: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+null_resource.copy_file: Refreshing state... [id=7576327422452695465]
+null_resource.copy_script: Refreshing state... [id=6395145311560298516]
+null_resource.remote-provisioner: Refreshing state... [id=6274285638585079166]
+module.azure_linuxvm.azurerm_network_interface.myterraformnic: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkInterfaces/myNIC]
+module.azure_linuxvm.azurerm_linux_virtual_machine.myterraformvm: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Compute/virtualMachines/2qxt6ImyAdmaticVM]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are
+indicated with the following symbols:
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # null_resource.copy_file must be replaced
+-/+ resource "null_resource" "copy_file" {
+      ~ id       = "7576327422452695465" -> (known after apply)
+      + triggers = { # forces replacement
+          + "trigger" = (known after apply)
+        }
+    }
+
+  # null_resource.copy_script must be replaced
+-/+ resource "null_resource" "copy_script" {
+      ~ id       = "6395145311560298516" -> (known after apply)
+      + triggers = { # forces replacement
+          + "trigger" = <<-EOT
+                echo "beginning the execution of robochef stack"
+                sudo apt-get update
+                sudo apt-get install -y software-properties-common
+                sudo apt-get install -y python-setuptools python-dev libffi-dev libssl-dev git sshpass tree
+                sudo easy_install pip
+                sudo apt install ansible -y
+
+                ansible --version
+            EOT
+        }
+    }
+
+  # null_resource.remote-provisioner must be replaced
+-/+ resource "null_resource" "remote-provisioner" {
+      ~ id       = "6274285638585079166" -> (known after apply)
+      + triggers = { # forces replacement
+          + "trigger" = (known after apply)
+        }
+    }
+
+Plan: 3 to add, 0 to change, 3 to destroy.
+null_resource.remote-provisioner: Destroying... [id=6274285638585079166]
+null_resource.copy_file: Destroying... [id=7576327422452695465]
+null_resource.copy_file: Destruction complete after 0s
+null_resource.remote-provisioner: Destruction complete after 0s
+null_resource.copy_script: Destroying... [id=6395145311560298516]
+null_resource.copy_script: Destruction complete after 0s
+null_resource.copy_file: Creating...
+null_resource.copy_script: Creating...
+null_resource.copy_file: Provisioning with 'file'...
+null_resource.copy_script: Provisioning with 'file'...
+null_resource.copy_script: Creation complete after 1s [id=3296821961792304528]
+null_resource.remote-provisioner: Creating...
+null_resource.remote-provisioner: Provisioning with 'remote-exec'...
+null_resource.remote-provisioner (remote-exec): Connecting to remote host via SSH...
+null_resource.remote-provisioner (remote-exec):   Host: 20.228.242.200
+null_resource.remote-provisioner (remote-exec):   User: saravanans
+null_resource.remote-provisioner (remote-exec):   Password: true
+null_resource.remote-provisioner (remote-exec):   Private key: false
+null_resource.remote-provisioner (remote-exec):   Certificate: false
+null_resource.remote-provisioner (remote-exec):   SSH Agent: false
+null_resource.remote-provisioner (remote-exec):   Checking Host Key: false
+null_resource.remote-provisioner (remote-exec):   Target Platform: unix
+null_resource.copy_file: Creation complete after 1s [id=4692852470923570254]
+null_resource.remote-provisioner (remote-exec): Connected!
+null_resource.remote-provisioner (remote-exec): beginning the execution of robochef stack
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:1 http://azure.archive.ubuntu.com/ubuntu bionic InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:2 http://azure.archive.ubuntu.com/ubuntu bionic-updates InRelease
+null_resource.remote-provisioner (remote-exec): Hit:3 http://azure.archive.ubuntu.com/ubuntu bionic-backports InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Hit:4 http://azure.archive.ubuntu.com/ubuntu bionic-security InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [1 InRelease gpgv 242 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [2 InRelease gpgv 88.7 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [3 InRelease gpgv 83.3 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [4 InRelease gpgv 88.7 kB]
+null_resource.remote-provisioner (remote-exec): 20% [Working]
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 47%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): software-properties-common is already the newest version (0.96.24.32.22).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): libffi-dev is already the newest version (3.2.1-8).
+null_resource.remote-provisioner (remote-exec): python-dev is already the newest version (2.7.15~rc1-1).
+null_resource.remote-provisioner (remote-exec): sshpass is already the newest version (1.06-1).
+null_resource.remote-provisioner (remote-exec): tree is already the newest version (1.7.0-5).
+null_resource.remote-provisioner (remote-exec): git is already the newest version (1:2.17.1-1ubuntu0.18).
+null_resource.remote-provisioner (remote-exec): libssl-dev is already the newest version (1.1.1-1ubuntu2.1~18.04.23).
+null_resource.remote-provisioner (remote-exec): python-setuptools is already the newest version (39.0.1-2ubuntu0.1).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): sudo: easy_install: command not found
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): The following additional packages will be installed:
+null_resource.remote-provisioner (remote-exec):   ieee-data python-asn1crypto
+null_resource.remote-provisioner (remote-exec):   python-certifi python-cffi-backend
+null_resource.remote-provisioner (remote-exec):   python-chardet python-cryptography
+null_resource.remote-provisioner (remote-exec):   python-enum34 python-httplib2
+null_resource.remote-provisioner (remote-exec):   python-idna python-ipaddress
+null_resource.remote-provisioner (remote-exec):   python-jinja2 python-jmespath
+null_resource.remote-provisioner (remote-exec):   python-kerberos python-libcloud
+null_resource.remote-provisioner (remote-exec):   python-lockfile python-markupsafe
+null_resource.remote-provisioner (remote-exec):   python-netaddr python-openssl
+null_resource.remote-provisioner (remote-exec):   python-paramiko python-pyasn1
+null_resource.remote-provisioner (remote-exec):   python-requests python-selinux
+null_resource.remote-provisioner (remote-exec):   python-simplejson python-urllib3
+null_resource.remote-provisioner (remote-exec):   python-xmltodict python-yaml
+null_resource.remote-provisioner (remote-exec): Suggested packages:
+null_resource.remote-provisioner (remote-exec):   cowsay python-cryptography-doc
+null_resource.remote-provisioner (remote-exec):   python-cryptography-vectors
+null_resource.remote-provisioner (remote-exec):   python-enum34-doc python-jinja2-doc
+null_resource.remote-provisioner (remote-exec):   python-lockfile-doc ipython
+null_resource.remote-provisioner (remote-exec):   python-netaddr-docs
+null_resource.remote-provisioner (remote-exec):   python-openssl-doc
+null_resource.remote-provisioner (remote-exec):   python-openssl-dbg python-gssapi
+null_resource.remote-provisioner (remote-exec):   python-socks python-ntlm
+null_resource.remote-provisioner (remote-exec): Recommended packages:
+null_resource.remote-provisioner (remote-exec):   python-winrm
+null_resource.remote-provisioner (remote-exec): The following NEW packages will be installed:
+null_resource.remote-provisioner (remote-exec):   ansible ieee-data python-asn1crypto
+null_resource.remote-provisioner (remote-exec):   python-certifi python-cffi-backend
+null_resource.remote-provisioner (remote-exec):   python-chardet python-cryptography
+null_resource.remote-provisioner (remote-exec):   python-enum34 python-httplib2
+null_resource.remote-provisioner (remote-exec):   python-idna python-ipaddress
+null_resource.remote-provisioner (remote-exec):   python-jinja2 python-jmespath
+null_resource.remote-provisioner (remote-exec):   python-kerberos python-libcloud
+null_resource.remote-provisioner (remote-exec):   python-lockfile python-markupsafe
+null_resource.remote-provisioner (remote-exec):   python-netaddr python-openssl
+null_resource.remote-provisioner (remote-exec):   python-paramiko python-pyasn1
+null_resource.remote-provisioner (remote-exec):   python-requests python-selinux
+null_resource.remote-provisioner (remote-exec):   python-simplejson python-urllib3
+null_resource.remote-provisioner (remote-exec):   python-xmltodict python-yaml
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 27 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): Need to get 7776 kB of archives.
+null_resource.remote-provisioner (remote-exec): After this operation, 60.9 MB of additional disk space will be used.
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Get:1 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-asn1crypto all 0.24.0-1 [72.7 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 0% [1 python-asn1crypto 13.9 kB/72.7 kB
+null_resource.remote-provisioner (remote-exec): 1% [Working]
+null_resource.remote-provisioner (remote-exec): Get:2 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-cffi-backend amd64 1.11.5-1 [63.4 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 2% [2 python-cffi-backend 9620 B/63.4 k
+null_resource.remote-provisioner (remote-exec): 3% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:3 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-enum34 all 1.1.6-2 [34.8 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 3% [3 python-enum34 27.2 kB/34.8 kB 78%
+null_resource.remote-provisioner (remote-exec): 4% [Working]
+null_resource.remote-provisioner (remote-exec): Get:4 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-idna all 2.6-1 [32.4 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 4% [4 python-idna 9064 B/32.4 kB 28%]
+null_resource.remote-provisioner (remote-exec): 5% [Working]
+null_resource.remote-provisioner (remote-exec): Get:5 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-ipaddress all 1.0.17-1 [18.2 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 5% [5 python-ipaddress 12.0 kB/18.2 kB
+null_resource.remote-provisioner (remote-exec): 6% [Working]
+null_resource.remote-provisioner (remote-exec): Get:6 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-cryptography amd64 2.1.4-1ubuntu1.4 [276 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 6% [6 python-cryptography 32.0 kB/276 k
+null_resource.remote-provisioner (remote-exec): 10% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:7 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-markupsafe amd64 1.0-1build1 [13.0 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 10% [7 python-markupsafe 13.0 kB/13.0 k
+null_resource.remote-provisioner (remote-exec): 10% [Working]
+null_resource.remote-provisioner (remote-exec): Get:8 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-jinja2 all 2.10-1ubuntu0.18.04.1 [94.8 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 11% [8 python-jinja2 10.9 kB/94.8 kB 12
+null_resource.remote-provisioner (remote-exec): 12% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:9 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-pyasn1 all 0.4.2-3 [46.7 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 13% [9 python-pyasn1 46.7 kB/46.7 kB 10
+null_resource.remote-provisioner (remote-exec): 13% [Working]
+null_resource.remote-provisioner (remote-exec): Get:10 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-paramiko all 2.0.0-1ubuntu1.3 [110 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 14% [10 python-paramiko 53.2 kB/110 kB
+null_resource.remote-provisioner (remote-exec): 15% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:11 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-yaml amd64 3.12-1build2 [115 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 16% [11 python-yaml 63.1 kB/115 kB 55%]
+null_resource.remote-provisioner (remote-exec): 17% [Working]
+null_resource.remote-provisioner (remote-exec): Get:12 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-httplib2 all 0.9.2+dfsg-1ubuntu0.3 [34.9 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 18% [12 python-httplib2 32.8 kB/34.9 kB
+null_resource.remote-provisioner (remote-exec): 18% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:13 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 ieee-data all 20180204.1 [1539 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 18% [13 ieee-data 13.9 kB/1539 kB 1%]
+null_resource.remote-provisioner (remote-exec): 35% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:14 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-netaddr all 0.7.19-1 [213 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 36% [14 python-netaddr 65.5 kB/213 kB 3
+null_resource.remote-provisioner (remote-exec): 38% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:15 http://azure.archive.ubuntu.com/ubuntu bionic-updates/universe amd64 ansible all 2.5.1+dfsg-1ubuntu0.1 [3198 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 38% [15 ansible 65.5 kB/3198 kB 2%]
+null_resource.remote-provisioner (remote-exec): 71% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:16 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-certifi all 2018.1.18-2 [144 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 72% [16 python-certifi 65.5 kB/144 kB 4
+null_resource.remote-provisioner (remote-exec): 74% [Working]
+null_resource.remote-provisioner (remote-exec): Get:17 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-chardet all 3.0.4-1 [80.3 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 74% [17 python-chardet 65.5 kB/80.3 kB
+null_resource.remote-provisioner (remote-exec): 75% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:18 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-jmespath all 0.9.3-1ubuntu1.1 [21.4 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 75% [18 python-jmespath 21.4 kB/21.4 kB
+null_resource.remote-provisioner (remote-exec): Get:19 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 python-kerberos amd64 1.1.14-1 [22.5 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 76% [19 python-kerberos 22.5 kB/22.5 kB
+null_resource.remote-provisioner (remote-exec): Get:20 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-urllib3 all 1.22-1ubuntu0.18.04.2 [86.0 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 78% [20 python-urllib3 41.0 kB/86.0 kB
+null_resource.remote-provisioner (remote-exec): 79% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:21 http://azure.archive.ubuntu.com/ubuntu bionic-updates/main amd64 python-requests all 2.18.4-2ubuntu0.1 [58.5 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 79% [21 python-requests 57.3 kB/58.5 kB
+null_resource.remote-provisioner (remote-exec): 80% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:22 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-lockfile all 1:0.12.2-2 [14.6 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 80% [22 python-lockfile 12.3 kB/14.6 kB
+null_resource.remote-provisioner (remote-exec): 81% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:23 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-simplejson amd64 3.13.2-1 [61.2 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 82% [23 python-simplejson 57.3 kB/61.2
+null_resource.remote-provisioner (remote-exec): 82% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:24 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 python-libcloud all 2.2.1-1 [1235 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 83% [24 python-libcloud 24.6 kB/1235 kB
+null_resource.remote-provisioner (remote-exec): 96% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:25 http://azure.archive.ubuntu.com/ubuntu bionic/main amd64 python-openssl all 17.5.0-1ubuntu1 [41.3 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 96% [25 python-openssl 41.0 kB/41.3 kB
+null_resource.remote-provisioner (remote-exec): 97% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:26 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 python-selinux amd64 2.7-2build2 [138 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 97% [26 python-selinux 29.2 kB/138 kB 2
+null_resource.remote-provisioner (remote-exec): 99% [Waiting for headers]
+null_resource.remote-provisioner (remote-exec): Get:27 http://azure.archive.ubuntu.com/ubuntu bionic/universe amd64 python-xmltodict all 0.11.0-1 [10.3 kB]
+null_resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): 100% [Working]
+null_resource.remote-provisioner (remote-exec): Fetched 7776 kB in 0s (18.7 MB/s)
+                                                Selecting previously unselected package python-asn1crypto._resource.remote-provisioner (remote-exec):
+null_resource.remote-provisioner (remote-exec): (Reading database ...
+null_resource.remote-provisioner (remote-exec): (Reading database ... 5%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 10%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 15%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 20%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 25%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 30%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 35%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 40%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 45%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 50%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 55%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 60%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 65%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 70%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 75%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 80%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 85%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 90%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 95%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 100%
+null_resource.remote-provisioner (remote-exec): (Reading database ... 63167 files and directories currently installed.)
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../00-python-asn1crypto_0.24.0-1_all.deb ...
+Progress: [  0%] [..................] te-exec): Unpacking python-asn1crypto (0.24.0-1) ...
+Progress: [  2%] [..................] te-exec): Selecting previously unselected package python-cffi-backend.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../01-python-cffi-backend_1.11.5-1_amd64.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-cffi-backend (1.11.5-1) ...
+Progress: [  4%] [..................] te-exec): Selecting previously unselected package python-enum34.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../02-python-enum34_1.1.6-2_all.deb ...
+Progress: [  5%] [..................] te-exec): Unpacking python-enum34 (1.1.6-2) ...
+Progress: [  7%] [#.................] te-exec): Selecting previously unselected package python-idna.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../03-python-idna_2.6-1_all.deb ...
+Progress: [  7%] [#.................] te-exec): Unpacking python-idna (2.6-1) ...
+Progress: [  8%] [#.................] te-exec): Selecting previously unselected package python-ipaddress.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../04-python-ipaddress_1.0.17-1_all.deb ...
+Progress: [ 10%] [#.................] te-exec): Unpacking python-ipaddress (1.0.17-1) ...
+Progress: [ 11%] [#.................] te-exec): Selecting previously unselected package python-cryptography.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../05-python-cryptography_2.1.4-1ubuntu1.4_amd64.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-cryptography (2.1.4-1ubuntu1.4) ...
+Progress: [ 13%] [##................] te-exec): Selecting previously unselected package python-markupsafe.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../06-python-markupsafe_1.0-1build1_amd64.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-markupsafe (1.0-1build1) ...
+Progress: [ 15%] [##................] te-exec): Selecting previously unselected package python-jinja2.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../07-python-jinja2_2.10-1ubuntu0.18.04.1_all.deb ...
+Progress: [ 16%] [##................] te-exec): Unpacking python-jinja2 (2.10-1ubuntu0.18.04.1) ...
+Progress: [ 18%] [###...............] te-exec): Selecting previously unselected package python-pyasn1.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../08-python-pyasn1_0.4.2-3_all.deb ...
+Progress: [ 18%] [###...............] te-exec): Unpacking python-pyasn1 (0.4.2-3) ...
+Progress: [ 19%] [###...............] te-exec): Selecting previously unselected package python-paramiko.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../09-python-paramiko_2.0.0-1ubuntu1.3_all.deb ...
+Progress: [ 21%] [###...............] te-exec): Unpacking python-paramiko (2.0.0-1ubuntu1.3) ...
+Progress: [ 22%] [###...............] te-exec): Selecting previously unselected package python-yaml.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../10-python-yaml_3.12-1build2_amd64.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-yaml (3.12-1build2) ...
+Progress: [ 24%] [####..............] te-exec): Selecting previously unselected package python-httplib2.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../11-python-httplib2_0.9.2+dfsg-1ubuntu0.3_all.deb ...
+Progress: [ 25%] [####..............] te-exec): Unpacking python-httplib2 (0.9.2+dfsg-1ubuntu0.3) ...
+Progress: [ 26%] [####..............] te-exec): Selecting previously unselected package ieee-data.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../12-ieee-data_20180204.1_all.deb ...
+Progress: [ 27%] [####..............] te-exec): Unpacking ieee-data (20180204.1) ...
+Progress: [ 29%] [#####.............] te-exec): Selecting previously unselected package python-netaddr.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../13-python-netaddr_0.7.19-1_all.deb ...
+Progress: [ 29%] [#####.............] te-exec): Unpacking python-netaddr (0.7.19-1) ...
+Progress: [ 30%] [#####.............] te-exec): Selecting previously unselected package ansible.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../14-ansible_2.5.1+dfsg-1ubuntu0.1_all.deb ...
+Progress: [ 32%] [#####.............] te-exec): Unpacking ansible (2.5.1+dfsg-1ubuntu0.1) ...
+Progress: [ 33%] [#####.............] te-exec): Selecting previously unselected package python-certifi.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../15-python-certifi_2018.1.18-2_all.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-certifi (2018.1.18-2) ...
+Progress: [ 35%] [######............] te-exec): Selecting previously unselected package python-chardet.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../16-python-chardet_3.0.4-1_all.deb ...
+Progress: [ 36%] [######............] te-exec): Unpacking python-chardet (3.0.4-1) ...
+Progress: [ 38%] [######............] te-exec): Selecting previously unselected package python-jmespath.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../17-python-jmespath_0.9.3-1ubuntu1.1_all.deb ...
+Progress: [ 38%] [######............] te-exec): Unpacking python-jmespath (0.9.3-1ubuntu1.1) ...
+Progress: [ 40%] [#######...........] te-exec): Selecting previously unselected package python-kerberos.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../18-python-kerberos_1.1.14-1_amd64.deb ...
+Progress: [ 40%] [#######...........] te-exec): Unpacking python-kerberos (1.1.14-1) ...
+Progress: [ 41%] [#######...........] te-exec): Selecting previously unselected package python-urllib3.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../19-python-urllib3_1.22-1ubuntu0.18.04.2_all.deb ...
+Progress: [ 43%] [#######...........] te-exec): Unpacking python-urllib3 (1.22-1ubuntu0.18.04.2) ...
+Progress: [ 44%] [#######...........] te-exec): Selecting previously unselected package python-requests.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../20-python-requests_2.18.4-2ubuntu0.1_all.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-requests (2.18.4-2ubuntu0.1) ...
+Progress: [ 46%] [########..........] te-exec): Selecting previously unselected package python-lockfile.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../21-python-lockfile_1%3a0.12.2-2_all.deb ...
+Progress: [ 47%] [########..........] te-exec): Unpacking python-lockfile (1:0.12.2-2) ...
+Progress: [ 49%] [########..........] te-exec): Selecting previously unselected package python-simplejson.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../22-python-simplejson_3.13.2-1_amd64.deb ...
+Progress: [ 49%] [########..........] te-exec): Unpacking python-simplejson (3.13.2-1) ...
+Progress: [ 50%] [#########.........] te-exec): Selecting previously unselected package python-libcloud.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../23-python-libcloud_2.2.1-1_all.deb ...
+Progress: [ 51%] [#########.........] te-exec): Unpacking python-libcloud (2.2.1-1) ...
+null_resource.remote-provisioner: Still creating... [10s elapsed]
+Progress: [ 52%] [#########.........] te-exec): Selecting previously unselected package python-openssl.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../24-python-openssl_17.5.0-1ubuntu1_all.deb ...
+Progress: [ 54%] [#########.........] te-exec): Unpacking python-openssl (17.5.0-1ubuntu1) ...
+Progress: [ 55%] [#########.........] te-exec): Selecting previously unselected package python-selinux.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../25-python-selinux_2.7-2build2_amd64.deb ...
+null_resource.remote-provisioner (remote-exec): Unpacking python-selinux (2.7-2build2) ...
+Progress: [ 57%] [##########........] te-exec): Selecting previously unselected package python-xmltodict.
+null_resource.remote-provisioner (remote-exec): Preparing to unpack .../26-python-xmltodict_0.11.0-1_all.deb ...
+Progress: [ 58%] [##########........] te-exec): Unpacking python-xmltodict (0.11.0-1) ...
+Progress: [ 60%] [##########........] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up python-idna (2.6-1) ...
+Progress: [ 60%] [##########........] te-exec):
+Progress: [ 61%] [##########........] te-exec): Setting up python-simplejson (3.13.2-1) ...
+Progress: [ 63%] [###########.......] te-exec): Setting up python-urllib3 (1.22-1ubuntu0.18.04.2) ...
+Progress: [ 63%] [###########.......] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up python-yaml (3.12-1build2) ...
+Progress: [ 65%] [###########.......] te-exec): Setting up python-asn1crypto (0.24.0-1) ...
+Progress: [ 66%] [###########.......] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up python-chardet (3.0.4-1) ...
+Progress: [ 68%] [############......] te-exec):
+Progress: [ 68%] [############......] te-exec): Setting up ieee-data (20180204.1) ...
+Progress: [ 69%] [############......] te-exec): Setting up python-pyasn1 (0.4.2-3) ...
+Progress: [ 71%] [############......] te-exec):
+Progress: [ 71%] [############......] te-exec): Setting up python-netaddr (0.7.19-1) ...
+Progress: [ 72%] [############......] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up python-xmltodict (0.11.0-1) ...
+Progress: [ 74%] [#############.....] te-exec): Setting up python-jmespath (0.9.3-1ubuntu1.1) ...
+Progress: [ 75%] [#############.....] te-exec): Setting up python-certifi (2018.1.18-2) ...
+Progress: [ 77%] [#############.....] te-exec): Setting up python-kerberos (1.1.14-1) ...
+Progress: [ 79%] [##############....] te-exec): Setting up python-markupsafe (1.0-1build1) ...
+Progress: [ 80%] [##############....] te-exec): Setting up python-httplib2 (0.9.2+dfsg-1ubuntu0.3) ...
+Progress: [ 82%] [##############....] te-exec): Setting up python-cffi-backend (1.11.5-1) ...
+Progress: [ 83%] [##############....] te-exec): Setting up python-selinux (2.7-2build2) ...
+Progress: [ 85%] [###############...] te-exec): Setting up python-enum34 (1.1.6-2) ...
+Progress: [ 86%] [###############...] te-exec): Setting up python-requests (2.18.4-2ubuntu0.1) ...
+Progress: [ 88%] [###############...] te-exec): Setting up python-lockfile (1:0.12.2-2) ...
+Progress: [ 88%] [###############...] te-exec): Setting up python-ipaddress (1.0.17-1) ...
+Progress: [ 90%] [################..] te-exec): Setting up python-jinja2 (2.10-1ubuntu0.18.04.1) ...
+Progress: [ 91%] [################..] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up python-cryptography (2.1.4-1ubuntu1.4) ...
+Progress: [ 93%] [################..] te-exec):
+Progress: [ 93%] [################..] te-exec): Setting up python-libcloud (2.2.1-1) ...
+Progress: [ 94%] [################..] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up python-openssl (17.5.0-1ubuntu1) ...
+Progress: [ 96%] [#################.] te-exec): Setting up python-paramiko (2.0.0-1ubuntu1.3) ...
+Progress: [ 97%] [#################.] te-exec):
+null_resource.remote-provisioner (remote-exec): Setting up ansible (2.5.1+dfsg-1ubuntu0.1) ...
+Progress: [ 99%] [#################.] te-exec):
+Progress: [ 99%] [#################.] te-exec): Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
+null_resource.remote-provisioner: Still creating... [20s elapsed]
+null_resource.remote-provisioner (remote-exec): ansible 2.5.1
+null_resource.remote-provisioner (remote-exec):   config file = /etc/ansible/ansible.cfg
+null_resource.remote-provisioner (remote-exec):   configured module search path = [u'/home/saravanans/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+null_resource.remote-provisioner (remote-exec):   ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+null_resource.remote-provisioner (remote-exec):   executable location = /usr/bin/ansible
+null_resource.remote-provisioner (remote-exec):   python version = 2.7.17 (default, Mar  8 2023, 18:40:28) [GCC 7.5.0]
+null_resource.remote-provisioner: Creation complete after 21s [id=8268108132175971828]
+
+Apply complete! Resources: 3 added, 0 changed, 3 destroyed.
+
+Outputs:
+
+ssh_password = "{ikR&!sjk[MEgM3AP490"
+sshuser = "saravanans"
+vm_public_ip = "20.228.242.200"
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ ls
+data.txt             main.tf     remote_exec.tf     terraform.tfstate
+file_provisioner.tf  outputs.tf  robochef_stack.sh  terraform.tfstate.backup
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano ansible-playbook.yaml
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat ansible-playbook.yaml
+---
+- hosts: localhost
+  become: yes
+  tasks:
+  - name: setup motd
+    copy: dest=/ect/motd content="Hello from Saravanan S"
+  - name: install apache
+    apt: name=apache2 state=present
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano file_provisioner.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat file_provisioner.tf
+resource "null_resource" "copy_file" {
+    triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "file" {
+    source = "data.txt"
+    destination = "/tmp/mydata-new.txt"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+
+resource "null_resource" "copy_script" {
+    triggers = {
+	trigger = file("robochef_stack.sh")
+  }
+  provisioner "file" {
+    source = "robochef_stack.sh"
+    destination = "/tmp/robochef_stack.sh"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+
+resource "null_resource" "copy_playbook" {
+    triggers = {
+        trigger = file("ansible-playbook.yaml")
+  }
+  provisioner "file" {
+    source = "robochef_stack.sh"
+    destination = "/tmp/ansible-playbook.yaml"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano remote_exec.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat remote_exec.tf
+resource "null_resource" "remote-provisioner" {
+  triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+		"echo Remote Provisioner did this > /tmp/remoteexec.txt",
+		"sh /tmp/robochef_stack.sh",
+	      ]
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+  depends_on = [null_resource.copy_script,null_resource.copy_playbook]
+}
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ ls
+ansible-playbook.yaml  main.tf         robochef_stack.sh
+data.txt               outputs.tf      terraform.tfstate
+file_provisioner.tf    remote_exec.tf  terraform.tfstate.backup
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano remote_exec.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat remote_exec.tf
+resource "null_resource" "remote-provisioner" {
+  triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+		"echo Remote Provisioner did this > /tmp/remoteexec.txt",
+		"sh /tmp/robochef_stack.sh",
+		"ansible-playbook /tmp/ansible-playbook.yaml",
+	      ]
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+  depends_on = [null_resource.copy_script,null_resource.copy_playbook]
+}
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano file_provisioner.tf
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ nano file_provisioner.tf
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ cat file_provisioner.tf
+resource "null_resource" "copy_file" {
+    triggers = {
+	trigger = timestamp()
+  }
+
+  provisioner "file" {
+    source = "data.txt"
+    destination = "/tmp/mydata-new.txt"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+
+resource "null_resource" "copy_script" {
+    triggers = {
+	trigger = file("robochef_stack.sh")
+  }
+  provisioner "file" {
+    source = "robochef_stack.sh"
+    destination = "/tmp/robochef_stack.sh"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+
+resource "null_resource" "copy_playbook" {
+    triggers = {
+        trigger = file("ansible-playbook.yaml")
+  }
+  provisioner "file" {
+    source = "ansible-playbook.yaml"
+    destination = "/tmp/ansible-playbook.yaml"
+  }
+
+  connection {
+    type = "ssh"
+    host = module.azure_linuxvm.vm_public_ip
+    user = "saravanans"
+    password = module.azure_linuxvm.ssh_password
+    port = 22
+    agent  = false
+  }
+}
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+module.azure_linuxvm.random_string.sshpassword: Refreshing state... [id={ikR&!sjk[MEgM3AP490]
+module.azure_linuxvm.random_string.vm_prefix: Refreshing state... [id=2qxt6I]
+module.azure_linuxvm.random_string.rgprefix: Refreshing state... [id=KZv3puq3y]
+module.azure_linuxvm.azurerm_resource_group.myterraformgroup: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo]
+module.azure_linuxvm.azurerm_virtual_network.myterraformnetwork: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet]
+module.azure_linuxvm.azurerm_network_security_group.myterraformnsg: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+module.azure_linuxvm.azurerm_public_ip.myterraformpublicip: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+null_resource.copy_playbook: Refreshing state... [id=5311084278904985204]
+null_resource.copy_script: Refreshing state... [id=3296821961792304528]
+null_resource.copy_file: Refreshing state... [id=3433326596466010269]
+module.azure_linuxvm.azurerm_subnet.myterraformsubnet: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+null_resource.remote-provisioner: Refreshing state... [id=1223475510346196898]
+module.azure_linuxvm.azurerm_network_interface.myterraformnic: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkInterfaces/myNIC]
+module.azure_linuxvm.azurerm_linux_virtual_machine.myterraformvm: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Compute/virtualMachines/2qxt6ImyAdmaticVM]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # null_resource.copy_file must be replaced
+-/+ resource "null_resource" "copy_file" {
+      ~ id       = "3433326596466010269" -> (known after apply)
+      ~ triggers = { # forces replacement
+          ~ "trigger" = "2023-11-24T09:50:06Z" -> (known after apply)
+        }
+    }
+
+  # null_resource.copy_playbook must be replaced
+-/+ resource "null_resource" "copy_playbook" {
+      ~ id       = "5311084278904985204" -> (known after apply)
+      ~ triggers = { # forces replacement
+          ~ "trigger" = <<-EOT
+                ---
+                - hosts: localhost
+                  become: yes
+                  tasks:
+              -   - name: setup motd
+              -     copy: dest=/ect/motd content="Hello from Saravanan S"
+              -   - name: install apache
+              -     apt: name=apache2 state=present
+              +     - name: setup motd
+              +       copy: dest=/etc/motd content="Hello from Saravanan S"
+              +     - name: install apache
+              +       apt: name=apache2 state=present
+            EOT
+        }
+    }
+
+  # null_resource.remote-provisioner is tainted, so must be replaced
+-/+ resource "null_resource" "remote-provisioner" {
+      ~ id       = "1223475510346196898" -> (known after apply)
+      ~ triggers = {
+          ~ "trigger" = "2023-11-24T09:50:07Z" -> (known after apply)
+        }
+    }
+
+Plan: 3 to add, 0 to change, 3 to destroy.
+null_resource.remote-provisioner: Destroying... [id=1223475510346196898]
+null_resource.copy_file: Destroying... [id=3433326596466010269]
+null_resource.copy_file: Destruction complete after 0s
+null_resource.remote-provisioner: Destruction complete after 0s
+null_resource.copy_playbook: Destroying... [id=5311084278904985204]
+null_resource.copy_playbook: Destruction complete after 0s
+null_resource.copy_file: Creating...
+null_resource.copy_file: Provisioning with 'file'...
+null_resource.copy_playbook: Creating...
+null_resource.copy_playbook: Provisioning with 'file'...
+null_resource.copy_file: Creation complete after 1s [id=1162033540919231476]
+null_resource.copy_playbook: Creation complete after 1s [id=226765260986379109]
+null_resource.remote-provisioner: Creating...
+null_resource.remote-provisioner: Provisioning with 'remote-exec'...
+null_resource.remote-provisioner (remote-exec): Connecting to remote host via SSH...
+null_resource.remote-provisioner (remote-exec):   Host: 20.228.242.200
+null_resource.remote-provisioner (remote-exec):   User: saravanans
+null_resource.remote-provisioner (remote-exec):   Password: true
+null_resource.remote-provisioner (remote-exec):   Private key: false
+null_resource.remote-provisioner (remote-exec):   Certificate: false
+null_resource.remote-provisioner (remote-exec):   SSH Agent: false
+null_resource.remote-provisioner (remote-exec):   Checking Host Key: false
+null_resource.remote-provisioner (remote-exec):   Target Platform: unix
+null_resource.remote-provisioner (remote-exec): Connected!
+null_resource.remote-provisioner (remote-exec): beginning the execution of robochef stack
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:1 http://azure.archive.ubuntu.com/ubuntu bionic InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:2 http://azure.archive.ubuntu.com/ubuntu bionic-updates InRelease
+null_resource.remote-provisioner (remote-exec): Hit:3 http://azure.archive.ubuntu.com/ubuntu bionic-backports InRelease
+null_resource.remote-provisioner (remote-exec): Hit:4 http://azure.archive.ubuntu.com/ubuntu bionic-security InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [1 InRelease gpgv 242 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [2 InRelease gpgv 88.7 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [3 InRelease gpgv 83.3 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [4 InRelease gpgv 88.7 kB]
+null_resource.remote-provisioner (remote-exec): 20% [Working]
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 73%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 73%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): software-properties-common is already the newest version (0.96.24.32.22).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): libffi-dev is already the newest version (3.2.1-8).
+null_resource.remote-provisioner (remote-exec): python-dev is already the newest version (2.7.15~rc1-1).
+null_resource.remote-provisioner (remote-exec): sshpass is already the newest version (1.06-1).
+null_resource.remote-provisioner (remote-exec): tree is already the newest version (1.7.0-5).
+null_resource.remote-provisioner (remote-exec): git is already the newest version (1:2.17.1-1ubuntu0.18).
+null_resource.remote-provisioner (remote-exec): libssl-dev is already the newest version (1.1.1-1ubuntu2.1~18.04.23).
+null_resource.remote-provisioner (remote-exec): python-setuptools is already the newest version (39.0.1-2ubuntu0.1).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): sudo: easy_install: command not found
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): ansible is already the newest version (2.5.1+dfsg-1ubuntu0.1).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): ansible 2.5.1
+null_resource.remote-provisioner (remote-exec):   config file = /etc/ansible/ansible.cfg
+null_resource.remote-provisioner (remote-exec):   configured module search path = [u'/home/saravanans/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+null_resource.remote-provisioner (remote-exec):   ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+null_resource.remote-provisioner (remote-exec):   executable location = /usr/bin/ansible
+null_resource.remote-provisioner (remote-exec):   python version = 2.7.17 (default, Mar  8 2023, 18:40:28) [GCC 7.5.0]
+null_resource.remote-provisioner (remote-exec):  [WARNING]: provided hosts list is empty, only localhost is available. Note
+null_resource.remote-provisioner (remote-exec): that the implicit localhost does not match 'all'
+null_resource.remote-provisioner (remote-exec):
+
+null_resource.remote-provisioner (remote-exec): PLAY [localhost] ***************************************************************
+
+null_resource.remote-provisioner (remote-exec): TASK [Gathering Facts] *********************************************************
+null_resource.remote-provisioner (remote-exec): ok: [localhost]
+
+null_resource.remote-provisioner (remote-exec): TASK [setup motd] **************************************************************
+null_resource.remote-provisioner (remote-exec): changed: [localhost]
+
+null_resource.remote-provisioner (remote-exec): TASK [install apache] **********************************************************
+null_resource.remote-provisioner: Still creating... [10s elapsed]
+null_resource.remote-provisioner: Still creating... [20s elapsed]
+null_resource.remote-provisioner (remote-exec): changed: [localhost]
+
+null_resource.remote-provisioner (remote-exec): PLAY RECAP *********************************************************************
+null_resource.remote-provisioner (remote-exec): localhost                  : ok=3    changed=2    unreachable=0    failed=0
+
+null_resource.remote-provisioner: Creation complete after 22s [id=3856609455677857584]
+
+Apply complete! Resources: 3 added, 0 changed, 3 destroyed.
+
+Outputs:
+
+ssh_password = "{ikR&!sjk[MEgM3AP490"
+sshuser = "saravanans"
+vm_public_ip = "20.228.242.200"
+
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$ terraform apply --auto-approve
+module.azure_linuxvm.random_string.rgprefix: Refreshing state... [id=KZv3puq3y]
+module.azure_linuxvm.random_string.vm_prefix: Refreshing state... [id=2qxt6I]
+module.azure_linuxvm.random_string.sshpassword: Refreshing state... [id={ikR&!sjk[MEgM3AP490]
+module.azure_linuxvm.azurerm_resource_group.myterraformgroup: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo]
+module.azure_linuxvm.azurerm_network_security_group.myterraformnsg: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+module.azure_linuxvm.azurerm_public_ip.myterraformpublicip: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+module.azure_linuxvm.azurerm_virtual_network.myterraformnetwork: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet]
+module.azure_linuxvm.azurerm_subnet.myterraformsubnet: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+null_resource.copy_playbook: Refreshing state... [id=226765260986379109]
+null_resource.copy_file: Refreshing state... [id=1162033540919231476]
+null_resource.copy_script: Refreshing state... [id=3296821961792304528]
+null_resource.remote-provisioner: Refreshing state... [id=3856609455677857584]
+module.azure_linuxvm.azurerm_network_interface.myterraformnic: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Network/networkInterfaces/myNIC]
+module.azure_linuxvm.azurerm_linux_virtual_machine.myterraformvm: Refreshing state... [id=/subscriptions/caacf21c-8838-4f0b-8108-e26adda6dc91/resourceGroups/KZv3puq3yrgdemo-provisionerDemo/providers/Microsoft.Compute/virtualMachines/2qxt6ImyAdmaticVM]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # null_resource.copy_file must be replaced
+-/+ resource "null_resource" "copy_file" {
+      ~ id       = "1162033540919231476" -> (known after apply)
+      ~ triggers = { # forces replacement
+          ~ "trigger" = "2023-11-24T09:54:02Z" -> (known after apply)
+        }
+    }
+
+  # null_resource.remote-provisioner must be replaced
+-/+ resource "null_resource" "remote-provisioner" {
+      ~ id       = "3856609455677857584" -> (known after apply)
+      ~ triggers = { # forces replacement
+          ~ "trigger" = "2023-11-24T09:54:02Z" -> (known after apply)
+        }
+    }
+
+Plan: 2 to add, 0 to change, 2 to destroy.
+null_resource.copy_file: Destroying... [id=1162033540919231476]
+null_resource.remote-provisioner: Destroying... [id=3856609455677857584]
+null_resource.copy_file: Destruction complete after 0s
+null_resource.remote-provisioner: Destruction complete after 0s
+null_resource.copy_file: Creating...
+null_resource.remote-provisioner: Creating...
+null_resource.copy_file: Provisioning with 'file'...
+null_resource.remote-provisioner: Provisioning with 'remote-exec'...
+null_resource.remote-provisioner (remote-exec): Connecting to remote host via SSH...
+null_resource.remote-provisioner (remote-exec):   Host: 20.228.242.200
+null_resource.remote-provisioner (remote-exec):   User: saravanans
+null_resource.remote-provisioner (remote-exec):   Password: true
+null_resource.remote-provisioner (remote-exec):   Private key: false
+null_resource.remote-provisioner (remote-exec):   Certificate: false
+null_resource.remote-provisioner (remote-exec):   SSH Agent: false
+null_resource.remote-provisioner (remote-exec):   Checking Host Key: false
+null_resource.remote-provisioner (remote-exec):   Target Platform: unix
+null_resource.remote-provisioner (remote-exec): Connected!
+null_resource.copy_file: Creation complete after 0s [id=5209652498845398322]
+null_resource.remote-provisioner (remote-exec): beginning the execution of robochef stack
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:1 http://azure.archive.ubuntu.com/ubuntu bionic InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): Hit:2 http://azure.archive.ubuntu.com/ubuntu bionic-updates InRelease
+null_resource.remote-provisioner (remote-exec): Hit:3 http://azure.archive.ubuntu.com/ubuntu bionic-backports InRelease
+null_resource.remote-provisioner (remote-exec): Hit:4 http://azure.archive.ubuntu.com/ubuntu bionic-security InRelease
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [1 InRelease gpgv 242 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [2 InRelease gpgv 88.7 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [3 InRelease gpgv 83.3 kB]
+null_resource.remote-provisioner (remote-exec): 0% [Working]
+null_resource.remote-provisioner (remote-exec): 0% [4 InRelease gpgv 88.7 kB]
+null_resource.remote-provisioner (remote-exec): 20% [Working]
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 3%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 4%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 30%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 39%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 44%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 53%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 59%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 64%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 66%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 71%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 73%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 73%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 74%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 82%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 88%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 92%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 94%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 97%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 99%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): software-properties-common is already the newest version (0.96.24.32.22).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): libffi-dev is already the newest version (3.2.1-8).
+null_resource.remote-provisioner (remote-exec): python-dev is already the newest version (2.7.15~rc1-1).
+null_resource.remote-provisioner (remote-exec): sshpass is already the newest version (1.06-1).
+null_resource.remote-provisioner (remote-exec): tree is already the newest version (1.7.0-5).
+null_resource.remote-provisioner (remote-exec): git is already the newest version (1:2.17.1-1ubuntu0.18).
+null_resource.remote-provisioner (remote-exec): libssl-dev is already the newest version (1.1.1-1ubuntu2.1~18.04.23).
+null_resource.remote-provisioner (remote-exec): python-setuptools is already the newest version (39.0.1-2ubuntu0.1).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): sudo: easy_install: command not found
+null_resource.remote-provisioner (remote-exec): Reading package lists... 0%
+null_resource.remote-provisioner (remote-exec): Reading package lists... 100%
+null_resource.remote-provisioner (remote-exec): Reading package lists... Done
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 0%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree... 50%
+null_resource.remote-provisioner (remote-exec): Building dependency tree
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... 0%
+null_resource.remote-provisioner (remote-exec): Reading state information... Done
+null_resource.remote-provisioner (remote-exec): ansible is already the newest version (2.5.1+dfsg-1ubuntu0.1).
+null_resource.remote-provisioner (remote-exec): 0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+null_resource.remote-provisioner (remote-exec): ansible 2.5.1
+null_resource.remote-provisioner (remote-exec):   config file = /etc/ansible/ansible.cfg
+null_resource.remote-provisioner (remote-exec):   configured module search path = [u'/home/saravanans/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+null_resource.remote-provisioner (remote-exec):   ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+null_resource.remote-provisioner (remote-exec):   executable location = /usr/bin/ansible
+null_resource.remote-provisioner (remote-exec):   python version = 2.7.17 (default, Mar  8 2023, 18:40:28) [GCC 7.5.0]
+null_resource.remote-provisioner (remote-exec):  [WARNING]: provided hosts list is empty, only localhost is available. Note
+null_resource.remote-provisioner (remote-exec): that the implicit localhost does not match 'all'
+null_resource.remote-provisioner (remote-exec):
+
+null_resource.remote-provisioner (remote-exec): PLAY [localhost] ***************************************************************
+
+null_resource.remote-provisioner (remote-exec): TASK [Gathering Facts] *********************************************************
+null_resource.remote-provisioner (remote-exec): ok: [localhost]
+
+null_resource.remote-provisioner (remote-exec): TASK [setup motd] **************************************************************
+null_resource.remote-provisioner (remote-exec): ok: [localhost]
+
+null_resource.remote-provisioner (remote-exec): TASK [install apache] **********************************************************
+null_resource.remote-provisioner (remote-exec): ok: [localhost]
+
+null_resource.remote-provisioner (remote-exec): PLAY RECAP *********************************************************************
+null_resource.remote-provisioner (remote-exec): localhost                  : ok=3    changed=0    unreachable=0    failed=0
+
+null_resource.remote-provisioner: Creation complete after 8s [id=3873048322008051209]
+
+Apply complete! Resources: 2 added, 0 changed, 2 destroyed.
+
+Outputs:
+
+ssh_password = "{ikR&!sjk[MEgM3AP490"
+sshuser = "saravanans"
+vm_public_ip = "20.228.242.200"
+saravanans@skillsasap-vm33:~/admatic_terraform_workspace/tf_provisioner_demo$
+

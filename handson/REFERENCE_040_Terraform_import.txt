@@ -1,0 +1,194 @@
+                                                                                                         saravanans@skillsasap-vm66:~/tf_azure_network$ terraform init
+                                                                                                                      Initializing the backend...
+                                                                                                                      Initializing provider plugins...
+- Reusing previous version of hashicorp/azurerm from the dependency lock file                                         - Reusing previous version of hashicorp/random from the dependency lock file
+- Installing hashicorp/azurerm v3.73.0...                                                                             - Installed hashicorp/azurerm v3.73.0 (signed by HashiCorp)
+- Installing hashicorp/random v3.5.1...                                                                               - Installed hashicorp/random v3.5.1 (signed by HashiCorp)
+                                                                                                                      Terraform has been successfully initialized!
+                                                                                                                      You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands                                         should now work.
+                                                                                                                      If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other                                       commands will detect it and remind you to do so if necessary.
+saravanans@skillsasap-vm66:~/tf_azure_network$ terraform apply                                                                                                                                                                              [0] 0:bash- 1:[tmux]*                                                                "skillsasap-vm66" 10:50 22-Sep-23
+  Enter a value: yes
+
+random_string.vm_prefix: Creating...
+random_string.sshpassword: Creating...
+random_string.vm_prefix: Creation complete after 0s [id=Q4MsKP]
+random_string.rgprefix: Creating...
+random_string.sshpassword: Creation complete after 0s [id=g$9x*t#3H0JaMTP19(X7]
+random_string.rgprefix: Creation complete after 0s [id=hmkDWbtkm]
+azurerm_resource_group.myterraformgroup: Creating...
+azurerm_resource_group.myterraformgroup: Creation complete after 1s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault]
+azurerm_virtual_network.myterraformnetwork: Creating...
+azurerm_network_security_group.myterraformnsg: Creating...
+azurerm_public_ip.myterraformpublicip: Creating...
+azurerm_public_ip.myterraformpublicip: Creation complete after 4s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/publicIPAddresses/myPublicIP]
+azurerm_network_security_group.myterraformnsg: Creation complete after 4s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+azurerm_virtual_network.myterraformnetwork: Creation complete after 7s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/virtualNetworks/myVnet]
+azurerm_subnet.myterraformsubnet: Creating...
+azurerm_subnet.myterraformsubnet: Creation complete after 5s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/virtualNetworks/myVnet/subnets/mySubnnet]
+azurerm_network_interface.myterraformnic: Creating...
+azurerm_network_interface.myterraformnic: Still creating... [10s elapsed]
+azurerm_network_interface.myterraformnic: Creation complete after 13s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/networkInterfaces/myNIC]
+azurerm_network_interface_security_group_association.example: Creating...
+azurerm_linux_virtual_machine.myterraformvm: Creating...
+azurerm_network_interface_security_group_association.example: Creation complete after 2s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/networkInterfaces/myNIC|/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/networkSecurityGroups/myNetworkSecurityGroup]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [10s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [20s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [30s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [40s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [50s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [1m0s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Still creating... [1m10s elapsed]
+azurerm_linux_virtual_machine.myterraformvm: Creation complete after 1m19s [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Compute/virtualMachines/Q4MsKPmyAdmaticVM]
+
+Apply complete! Resources: 11 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ssh_password = "g$9x*t#3H0JaMTP19(X7"
+sshuser = "saravanans"
+vm_public_ip = ""
+(failed reverse-i-search)`state li': echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.li^C.d/ha
+shicorp.list
+saravanans@skillsasap-vm66:~/tf_azure_network$
+saravanans@skillsasap-vm66:~/tf_azure_network$ terraform state list
+azurerm_linux_virtual_machine.myterraformvm
+azurerm_network_interface.myterraformnic
+azurerm_network_interface_security_group_association.example
+azurerm_network_security_group.myterraformnsg
+azurerm_public_ip.myterraformpublicip
+azurerm_resource_group.myterraformgroup
+azurerm_subnet.myterraformsubnet
+azurerm_virtual_network.myterraformnetwork
+random_string.rgprefix
+random_string.sshpassword
+random_string.vm_prefix
+saravanans@skillsasap-vm66:~/tf_azure_network$ terraform state show azurerm_virtual_network.myterraformnetwork
+# azurerm_virtual_network.myterraformnetwork:
+resource "azurerm_virtual_network" "myterraformnetwork" {
+    address_space           = [
+        "10.0.0.0/16",
+    ]
+    dns_servers             = []
+    flow_timeout_in_minutes = 0
+    guid                    = "cd7b889c-7cc3-4ee7-9b5a-530d101c516c"
+    id                      = "/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault/providers/Microsoft.Network/virtualNetworks/myVnet"
+    location                = "westus"
+    name                    = "myVnet"
+    resource_group_name     = "hmkDWbtkmrgdemo-fromDefault"
+    subnet                  = []
+}
+saravanans@skillsasap-vm66:~/tf_azure_network$ cd ..
+saravanans@skillsasap-vm66:~$
+saravanans@skillsasap-vm66:~$ mkdir tf_import_scenario
+saravanans@skillsasap-vm66:~$ cd tf_import_scenario
+saravanans@skillsasap-vm66:~/tf_import_scenario$ vi main.tf
+saravanans@skillsasap-vm66:~/tf_import_scenario$ cat main.tf
+resource "azurerm_resource_group" "myrg" {
+        name = "hmkDWbtkmrgdemo-fromDefault"
+        location = "westus"
+        
+
+saravanans@skillsasap-vm66:~/tf_import_scenario$ ls^C
+saravanans@skillsasap-vm66:~/tf_import_scenario$
+saravanans@skillsasap-vm66:~/tf_import_scenario$
+saravanans@skillsasap-vm66:~/tf_import_scenario$
+(reverse-i-search)`init': terraform ^Cit
+saravanans@skillsasap-vm66:~/tf_import_scenario$ vi main.tf
+saravanans@skillsasap-vm66:~/tf_import_scenario$ vi main.tf
+saravanans@skillsasap-vm66:~/tf_import_scenario$ terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding latest version of hashicorp/azurerm...
+- Installing hashicorp/azurerm v3.74.0...
+- Installed hashicorp/azurerm v3.74.0 (signed by HashiCorp)
+
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+saravanans@skillsasap-vm66:~/tf_import_scenario$ terraform apply
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are
+indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.myrg will be created
+  + resource "azurerm_resource_group" "myrg" {
+      + id       = (known after apply)
+      + location = "westus"
+      + name     = "hmkDWbtkmrgdemo-fromDefault"
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+azurerm_resource_group.myrg: Creating...
+╷
+│ Error: A resource with the ID "/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_resource_group" for more information.
+│
+│   with azurerm_resource_group.myrg,
+│   on main.tf line 1, in resource "azurerm_resource_group" "myrg":
+│    1: resource "azurerm_resource_group" "myrg" {
+│
+╵
+saravanans@skillsasap-vm66:~/tf_import_scenario$ terraform state list
+saravanans@skillsasap-vm66:~/tf_import_scenario$ terraform import azurerm_resource_group.myrg /subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault
+azurerm_resource_group.myrg: Importing from ID "/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault"...
+azurerm_resource_group.myrg: Import prepared!
+  Prepared azurerm_resource_group for import
+azurerm_resource_group.myrg: Refreshing state... [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+
+saravanans@skillsasap-vm66:~/tf_import_scenario$ cat main.tf
+resource "azurerm_resource_group" "myrg" {
+        name = "hmkDWbtkmrgdemo-fromDefault"
+        location = "westus"
+}
+
+
+provider "azurerm" {
+  features {}
+
+  skip_provider_registration = true
+}
+
+
+saravanans@skillsasap-vm66:~/tf_import_scenario$ terraform apply
+azurerm_resource_group.myrg: Refreshing state... [id=/subscriptions/2ce1752d-7718-4bd5-9b65-6510638e11fc/resourceGroups/hmkDWbtkmrgdemo-fromDefault]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences,
+so no changes are needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+saravanans@skillsasap-vm66:~/tf_import_scenario$
+saravanans@skillsasap-vm66:~/tf_import_scenario$
+saravanans@skillsasap-vm66:~/tf_import_scenario$
+
