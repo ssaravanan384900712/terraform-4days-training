@@ -1,0 +1,14 @@
+# robochef.co — deployment config
+# File provisioner demo — Lab 052
+
+app_name    = robochef.co
+environment = demo
+region      = ap-south-1
+version     = 1.0.0
+deployed_by = Terraform file provisioner
+managed_by  = Saravanan Sundaramoorthy
+
+# Notes
+# This file is copied from the Terraform working directory
+# to /tmp/data.txt on the EC2 instance using the file provisioner.
+# It is NOT executed — it is just a plain text file.

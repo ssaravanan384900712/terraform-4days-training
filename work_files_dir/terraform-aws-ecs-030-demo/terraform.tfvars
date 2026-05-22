@@ -1,0 +1,9 @@
+aws_region       = "ap-south-1"
+prefix           = "terraform-030"
+ecr_repo_name    = "terraform-030-robochef-app"
+ecs_cluster_name = "terraform-030-cluster"
+container_image  = "nginx:latest"
+container_port   = 80
+task_cpu         = 256
+task_memory      = 512
+desired_count    = 1

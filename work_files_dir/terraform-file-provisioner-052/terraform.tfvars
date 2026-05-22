@@ -1,0 +1,5 @@
+aws_region    = "ap-south-1"
+instance_type = "t3.micro"
+project_name  = "robochef-fp-052"
+owner         = "saravanans"
+project_tag   = "robochef.co"

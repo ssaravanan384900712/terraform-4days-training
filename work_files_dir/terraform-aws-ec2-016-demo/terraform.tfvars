@@ -1,0 +1,6 @@
+aws_region       = "ap-south-1"
+instance_type    = "t3.micro"
+key_name         = "terraform-016-demo-key"
+allowed_ssh_cidr = "0.0.0.0/0"
+instance_name    = "terraform-016-demo-ec2"
+private_key_path = "~/.ssh/terraform-016-demo"

@@ -1,0 +1,6 @@
+aws_region     = "ap-south-1"
+name_prefix    = "terraform-029"
+owner          = "saravanans"
+project        = "robochef.co"
+lambda_runtime = "python3.12"
+lambda_handler = "handler.lambda_handler"
